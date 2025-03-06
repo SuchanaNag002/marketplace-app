@@ -9,7 +9,7 @@ const orderValidator = Joi.object({
     'string.empty': 'Shipping address is required'
   }),
   orderStatus: Joi.string().optional().default('Pending'),
-  orderDate: Joi.date().optional().default(() => new Date(), 'current date')
+  orderDate: Joi.date().optional().default(() => new Date())
 });
 
 export default orderValidator;
