@@ -1,4 +1,4 @@
-import base from "../db_config/airtable.js";
+import base from '../db_config/airtable.js';
 
 const getProducts = async () => {
   const records = await base("Products").select().all();
@@ -6,12 +6,13 @@ const getProducts = async () => {
 };
 
 const addProduct = async (productData) => {
-  const record = await base("Products").create([{ fields: productData }]);
-  return { id: record[0].id, ...record[0].fields };
+  const records = await base("Products").create([{ fields: productData }]);
+  return { id: records[0].id, ...records[0].fields };
 };
 
 const updateProduct = async (id, updatedFields) => {
-  await base("Products").update([{ id, fields: updatedFields }]);
+  const records = await base("Products").update([{ id, fields: updatedFields }]);
+  return { id: records[0].id, ...records[0].fields };
 };
 
 const deleteProduct = async (id) => {
