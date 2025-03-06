@@ -1,10 +1,11 @@
-import { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/ui/input";
 import Button from "../../components/ui/button";
-import { login } from "../../api/AuthApi";
+import { UserContext } from "../../context/userContext";
 
-const Login = ({ onLogin }) => {
+const Login = () => {
+  const { login } = useContext(UserContext);
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -17,7 +18,6 @@ const Login = ({ onLogin }) => {
     e.preventDefault();
     try {
       await login(formData);
-      onLogin();
       navigate("/");
     } catch (err) {
       setError(err.response?.data?.error || "Login failed");
@@ -31,10 +31,7 @@ const Login = ({ onLogin }) => {
       </h1>
       <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-8">
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col space-y-4 items-center"
-        >
+        <form onSubmit={handleSubmit} className="flex flex-col space-y-4 items-center">
           <Input
             label="Email"
             type="email"
@@ -49,18 +46,11 @@ const Login = ({ onLogin }) => {
             value={formData.password}
             onChange={handleChange}
           />
-          <Button
-            type="submit"
-            text="Login"
-            className="flex justify-center mt-2"
-          />
+          <Button type="submit" text="Login" className="flex justify-center mt-2" />
         </form>
         <p className="mt-6 text-center text-gray-700">
           Don't have an account?{" "}
-          <span
-            className="text-blue-500 cursor-pointer"
-            onClick={() => navigate("/signup")}
-          >
+          <span className="text-blue-500 cursor-pointer" onClick={() => navigate("/signup")}>
             Sign Up
           </span>
         </p>

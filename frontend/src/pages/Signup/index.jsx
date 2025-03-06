@@ -1,18 +1,18 @@
-import { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/ui/input";
 import Button from "../../components/ui/button";
 import Dropdown from "../../components/ui/Dropdown";
-import { signup } from "../../api/AuthApi";
+import { UserContext } from "../../context/userContext";
 
-const Signup = ({ onLogin }) => {
+const Signup = () => {
+  const { signup } = useContext(UserContext);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     role: "",
   });
-
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -24,7 +24,6 @@ const Signup = ({ onLogin }) => {
     e.preventDefault();
     try {
       await signup(formData);
-      onLogin();
       navigate("/");
     } catch (err) {
       setError(err.response?.data?.error || "Signup failed");
@@ -60,8 +59,6 @@ const Signup = ({ onLogin }) => {
             value={formData.password}
             onChange={handleChange}
           />
-
-          {/* Using the Reusable Dropdown Component */}
           <Dropdown
             label="Role"
             name="role"
@@ -72,19 +69,13 @@ const Signup = ({ onLogin }) => {
               { label: "Seller", value: "seller" },
             ]}
           />
-
-          {/* Centering the button */}
           <div className="flex justify-center">
             <Button type="submit" text="Sign Up" className="mt-2" />
           </div>
         </form>
-
         <p className="mt-6 text-center text-gray-700">
           Already have an account?{" "}
-          <span
-            className="text-blue-500 cursor-pointer"
-            onClick={() => navigate("/login")}
-          >
+          <span className="text-blue-500 cursor-pointer" onClick={() => navigate("/login")}>
             Login
           </span>
         </p>
