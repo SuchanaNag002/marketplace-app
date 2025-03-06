@@ -1,11 +1,20 @@
-import jwt from 'jsonwebtoken';
+import authService from "../services/authService";
 
-const generateToken = (user) => {
-    return jwt.sign(
-        { id: user.id, email: user.email },
-        process.env.JWT_SECRET || 'default_secret',
-        { expiresIn: '1h' }
-    );
+export const loginUser = async (res, req) => {
+  try {
+    const { email, password } = req.body;
+    const response = await authService.loginUser(email, password);
+    res.json(response);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 };
 
-export default generateToken;
+export const registerUser = async (req, res) => {
+  try {
+    const user = await authService.registerUser(req.body);
+    res.status(201).json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
