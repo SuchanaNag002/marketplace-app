@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Input from "../../components/ui/Input";
-import Button from "../../components/ui/Button";
+import Input from "../../components/ui/input";
+import Button from "../../components/ui/button";
 import Dropdown from "../../components/ui/Dropdown";
 import { signup } from "../../api/AuthApi";
 
@@ -39,9 +39,27 @@ const Signup = ({ onLogin }) => {
       <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-8">
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
-          <Input label="Name" type="text" name="name" value={formData.name} onChange={handleChange} />
-          <Input label="Email" type="email" name="email" value={formData.email} onChange={handleChange} />
-          <Input label="Password" type="password" name="password" value={formData.password} onChange={handleChange} />
+          <Input
+            label="Name"
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+          />
+          <Input
+            label="Email"
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+          />
+          <Input
+            label="Password"
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+          />
 
           {/* Using the Reusable Dropdown Component */}
           <Dropdown
@@ -63,7 +81,10 @@ const Signup = ({ onLogin }) => {
 
         <p className="mt-6 text-center text-gray-700">
           Already have an account?{" "}
-          <span className="text-blue-500 cursor-pointer" onClick={() => navigate("/login")}>
+          <span
+            className="text-blue-500 cursor-pointer"
+            onClick={() => navigate("/login")}
+          >
             Login
           </span>
         </p>

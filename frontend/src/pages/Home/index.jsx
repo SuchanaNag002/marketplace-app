@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import ProductCard from "../../components/ProductComponent/ProductCard";
 import ProductForm from "../../components/ProductComponent/ProductForm";
 import Button from "../../components/ui/button";
 
 const Home = ({ onLogout }) => {
   const [products, setProducts] = useState([]);
-  const navigate = useNavigate();
 
   const handleAddProduct = (product) => {
     setProducts([...products, { ...product, id: Date.now() }]);

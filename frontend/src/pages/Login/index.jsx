@@ -20,7 +20,7 @@ const Login = ({ onLogin }) => {
       onLogin();
       navigate("/");
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+      setError(err.response?.data?.error || "Login failed");
     }
   };
 
@@ -31,7 +31,10 @@ const Login = ({ onLogin }) => {
       </h1>
       <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-8">
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-        <form onSubmit={handleSubmit} className="flex flex-col space-y-4 items-center">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col space-y-4 items-center"
+        >
           <Input
             label="Email"
             type="email"
@@ -46,7 +49,11 @@ const Login = ({ onLogin }) => {
             value={formData.password}
             onChange={handleChange}
           />
-          <Button type="submit" text="Login" className="flex justify-center mt-2" />
+          <Button
+            type="submit"
+            text="Login"
+            className="flex justify-center mt-2"
+          />
         </form>
         <p className="mt-6 text-center text-gray-700">
           Don't have an account?{" "}
