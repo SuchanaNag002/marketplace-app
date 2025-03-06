@@ -4,8 +4,15 @@ import MenuIcon from "@mui/icons-material/Menu";
 
 const Navbar = ({ title, onMenuClick }) => {
   const isMobile = useMediaQuery("(max-width:600px)");
+
   return (
-    <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+    <AppBar
+      position="fixed"
+      sx={{
+        backgroundColor: "#2D2D2D", // Dark Gray
+        zIndex: (theme) => theme.zIndex.drawer + 1,
+      }}
+    >
       <Toolbar>
         {isMobile && (
           <IconButton
@@ -17,7 +24,7 @@ const Navbar = ({ title, onMenuClick }) => {
             <MenuIcon />
           </IconButton>
         )}
-        <Typography variant="h6" noWrap component="div">
+        <Typography variant="h6" noWrap component="div" sx={{ color: "#fff" }}>
           {title}
         </Typography>
       </Toolbar>

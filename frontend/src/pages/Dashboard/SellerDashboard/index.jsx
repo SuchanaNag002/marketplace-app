@@ -1,16 +1,27 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Box, Typography, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  Typography,
+  useMediaQuery,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import EditIcon from "@mui/icons-material/Edit";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+
 import Navbar from "../../../components/ui/Navbar";
 import Sidebar from "../../../components/ui/Sidebar";
 import Dialog from "../../../components/ui/Dialog";
 import Button from "../../../components/ui/button";
 import { UserContext } from "../../../context/userContext";
-import {
-  getProducts,
-  createProduct,
-  updateProduct,
-  deleteProduct,
-} from "../../../api/ProductsApi";
+
+// Mock or import your real API calls
+import { getProducts, createProduct, updateProduct, deleteProduct } from "../../../api/ProductsApi";
+
 import ProductCard from "../../../components/ProductComponent/ProductCard";
 import ProductForm from "../../../components/ProductComponent/ProductForm";
 
@@ -20,25 +31,28 @@ const SellerDashboard = ({ onLogout }) => {
   const { user } = useContext(UserContext);
   const isMobile = useMediaQuery("(max-width:600px)");
 
-  // State for drawer, view mode, and products
+  // State for controlling the mobile drawer
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [viewMode, setViewMode] = useState("all"); // "all" or "edit"
-  const [allProducts, setAllProducts] = useState([]);
+
+  // State for which view to show: "Add Product" (dialog) or "Edit Product" (list)
+  const [viewMode, setViewMode] = useState("edit"); // default to "edit"
+
+  // Products belonging to this seller
   const [myProducts, setMyProducts] = useState([]);
 
-  // Control the dialog
+  // Dialog state for adding a product
   const [openDialog, setOpenDialog] = useState(false);
 
   useEffect(() => {
-    fetchProducts();
+    fetchMyProducts();
+    // eslint-disable-next-line
   }, []);
 
-  const fetchProducts = async () => {
+  const fetchMyProducts = async () => {
     try {
-      const products = await getProducts();
-      setAllProducts(products);
-      const myProds = products.filter((prod) => prod.sellerId === user.id);
-      setMyProducts(myProds);
+      const allProducts = await getProducts();
+      const sellerItems = allProducts.filter((p) => p.sellerId === user.id);
+      setMyProducts(sellerItems);
     } catch (error) {
       console.error("Error fetching products:", error);
     }
@@ -48,28 +62,24 @@ const SellerDashboard = ({ onLogout }) => {
     setMobileOpen(!mobileOpen);
   };
 
-  const handleShowAllProducts = () => {
-    setViewMode("all");
-    if (isMobile) handleDrawerToggle();
-  };
-
-  const handleShowMyProducts = () => {
-    setViewMode("edit");
-    if (isMobile) handleDrawerToggle();
-  };
-
+  // Sidebar actions
   const handleAddProductClick = () => {
     setOpenDialog(true);
     if (isMobile) handleDrawerToggle();
   };
 
+  const handleEditProductClick = () => {
+    setViewMode("edit");
+    if (isMobile) handleDrawerToggle();
+  };
+
+  // Create product
   const handleAddProduct = async (data) => {
     try {
       const newProduct = await createProduct({
         ...data,
         sellerId: user.id,
       });
-      setAllProducts([...allProducts, newProduct]);
       setMyProducts([...myProducts, newProduct]);
       setOpenDialog(false);
     } catch (error) {
@@ -77,105 +87,115 @@ const SellerDashboard = ({ onLogout }) => {
     }
   };
 
+  // Delete product
   const handleDeleteProduct = async (product) => {
     try {
       await deleteProduct(product.id);
-      setAllProducts(allProducts.filter((p) => p.id !== product.id));
       setMyProducts(myProducts.filter((p) => p.id !== product.id));
     } catch (error) {
       console.error("Error deleting product:", error);
     }
   };
 
-  // Dummy update function; replace with your actual update logic
+  // Example product update
   const handleUpdateProduct = async (product) => {
     try {
-      const updatedData = { name: "New Name", description: "Updated desc" };
+      const updatedData = { name: "Updated Name", description: "Updated Desc" };
       const updatedProduct = await updateProduct(product.id, updatedData);
-      const updatedAll = allProducts.map((p) =>
+      const updatedList = myProducts.map((p) =>
         p.id === product.id ? updatedProduct : p
       );
-      setAllProducts(updatedAll);
-      const updatedMine = myProducts.map((p) =>
-        p.id === product.id ? updatedProduct : p
-      );
-      setMyProducts(updatedMine);
+      setMyProducts(updatedList);
     } catch (error) {
       console.error("Error updating product:", error);
     }
   };
 
+  // Sidebar content
   const drawerContent = (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <Typography variant="h6" sx={{ p: 2 }}>
+      <Typography variant="h6" sx={{ p: 2, color: "#fff" }}>
         Menu
       </Typography>
-      <Box
-        sx={{
-          flexGrow: 1,
-          display: "flex",
-          flexDirection: "column",
-          gap: 1,
-          px: 2,
-        }}
-      >
-        <Button onClick={handleShowAllProducts}>All Products</Button>
-        <Button onClick={handleAddProductClick}>Add Product</Button>
-        <Button onClick={handleShowMyProducts}>Edit Product</Button>
-      </Box>
-      <Box sx={{ p: 2, borderTop: "1px solid #ddd" }}>
-        <Typography variant="body2" sx={{ mb: 1 }}>
+      {/* List with icons */}
+      <List sx={{ flexGrow: 1 }}>
+        {/* Add Product */}
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={handleAddProductClick}
+            sx={{
+              color: "#FFFFFF",
+              "&:hover": { backgroundColor: "#3D3D3D" },
+            }}
+          >
+            <ListItemIcon sx={{ color: "#fff" }}>
+              <AddCircleOutlineIcon />
+            </ListItemIcon>
+            <ListItemText primary="Add Product" />
+          </ListItemButton>
+        </ListItem>
+
+        {/* Edit Product */}
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={handleEditProductClick}
+            sx={{
+              color: "#FFFFFF",
+              "&:hover": { backgroundColor: "#3D3D3D" },
+            }}
+          >
+            <ListItemIcon sx={{ color: "#fff" }}>
+              <EditIcon />
+            </ListItemIcon>
+            <ListItemText primary="Edit Product" />
+          </ListItemButton>
+        </ListItem>
+      </List>
+      {/* Bottom section: user info + logout */}
+      <Box sx={{ p: 2, borderTop: "1px solid #555" }}>
+        <Typography variant="body2" sx={{ mb: 1, color: "#fff" }}>
           Logged in as: <strong>{user?.name}</strong>
         </Typography>
-        <Button color="secondary" onClick={onLogout} fullWidth>
-          Logout
-        </Button>
+        <ListItemButton
+          onClick={onLogout}
+          sx={{
+            color: "#FFFFFF",
+            "&:hover": { backgroundColor: "#3D3D3D" },
+            mt: 1,
+          }}
+        >
+          <ListItemIcon sx={{ color: "#fff" }}>
+            <ExitToAppIcon />
+          </ListItemIcon>
+          <ListItemText primary="Logout" />
+        </ListItemButton>
       </Box>
     </Box>
   );
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Navbar
-        title="E-Marketplace Dashboard"
-        onMenuClick={handleDrawerToggle}
-      />
+      {/* Dark top navbar */}
+      <Navbar title="E-Marketplace Dashboard" onMenuClick={handleDrawerToggle} />
+
+      {/* Dark sidebar */}
       <Sidebar
         drawerContent={drawerContent}
         mobileOpen={mobileOpen}
         onClose={handleDrawerToggle}
       />
+
+      {/* Main content area */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: 3,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
-          mt: 8,
+          mt: 8, // offset for the AppBar
         }}
       >
-        {viewMode === "all" && (
-          <>
-            <Typography variant="h5" sx={{ mb: 2 }}>
-              All Products
-            </Typography>
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                  xs: "1fr",
-                  sm: "1fr 1fr",
-                  md: "1fr 1fr 1fr",
-                },
-                gap: 2,
-              }}
-            >
-              {allProducts.map((prod) => (
-                <ProductCard key={prod.id} product={prod} />
-              ))}
-            </Box>
-          </>
-        )}
+        {/* Show the seller's products with Edit/Delete */}
         {viewMode === "edit" && (
           <>
             <Typography variant="h5" sx={{ mb: 2 }}>
@@ -205,13 +225,9 @@ const SellerDashboard = ({ onLogout }) => {
           </>
         )}
       </Box>
-      {/* Responsive Dialog with ProductForm */}
-      <Dialog
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-        title="Add New Product"
-        onConfirm={() => {}}
-      >
+
+      {/* Dialog for adding a product */}
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} title="Add New Product">
         <ProductForm onSubmit={handleAddProduct} />
       </Dialog>
     </Box>

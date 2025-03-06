@@ -4,7 +4,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Button as MuiButton
+  Button as MuiButton,
 } from "@mui/material";
 
 const Dialog = ({ open, onClose, title, children, onConfirm }) => {
