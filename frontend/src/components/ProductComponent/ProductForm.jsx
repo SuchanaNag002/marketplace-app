@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import Input from "../ui/input";
 import Button from "../ui/button";
 
@@ -12,10 +12,23 @@ const ProductForm = ({ onSubmit, product = {} }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4">
-      <Input label="Product Name" value={name} onChange={(e) => setName(e.target.value)} />
-      <Input label="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
-      <Button type="submit">Submit</Button>
+    <form
+      onSubmit={handleSubmit}
+      className="p-4 flex flex-col justify-center items-center"
+    >
+      <Input
+        label="Product Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <Input
+        label="Description"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
+      <Button type="submit" className="w-1/2 py-6">
+        Submit
+      </Button>
     </form>
   );
 };

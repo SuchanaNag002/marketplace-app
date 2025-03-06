@@ -1,107 +1,220 @@
 import React, { useState, useEffect, useContext } from "react";
-import ProductCard from "../../../components/ProductComponent/ProductCard";
-import ProductForm from "../../../components/ProductComponent/ProductForm";
+import { Box, Typography, useMediaQuery } from "@mui/material";
+import Navbar from "../../../components/ui/Navbar";
+import Sidebar from "../../../components/ui/Sidebar";
+import Dialog from "../../../components/ui/Dialog";
 import Button from "../../../components/ui/button";
+import { UserContext } from "../../../context/userContext";
 import {
   getProducts,
   createProduct,
   updateProduct,
   deleteProduct,
 } from "../../../api/ProductsApi";
-import { UserContext } from "../../../context/userContext";
+import ProductCard from "../../../components/ProductComponent/ProductCard";
+import ProductForm from "../../../components/ProductComponent/ProductForm";
+
+const drawerWidth = 240;
 
 const SellerDashboard = ({ onLogout }) => {
   const { user } = useContext(UserContext);
-  const [products, setProducts] = useState([]);
-  const [editingProduct, setEditingProduct] = useState(null);
+  const isMobile = useMediaQuery("(max-width:600px)");
 
-  const fetchProducts = async () => {
-    try {
-      const allProducts = await getProducts();
-      // Filter products created by this seller
-      const sellerProducts = allProducts.filter(
-        (product) => product.sellerId === user.id
-      );
-      setProducts(sellerProducts);
-    } catch (error) {
-      console.error("Error fetching products", error);
-    }
-  };
+  // State for drawer, view mode, and products
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [viewMode, setViewMode] = useState("all"); // "all" or "edit"
+  const [allProducts, setAllProducts] = useState([]);
+  const [myProducts, setMyProducts] = useState([]);
+
+  // Control the dialog
+  const [openDialog, setOpenDialog] = useState(false);
 
   useEffect(() => {
     fetchProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleAddProduct = async (productData) => {
+  const fetchProducts = async () => {
     try {
-      const newProduct = await createProduct({
-        ...productData,
-        sellerId: user.id,
-      });
-      setProducts([...products, newProduct]);
+      const products = await getProducts();
+      setAllProducts(products);
+      const myProds = products.filter((prod) => prod.sellerId === user.id);
+      setMyProducts(myProds);
     } catch (error) {
-      console.error("Error adding product", error);
+      console.error("Error fetching products:", error);
     }
   };
 
-  const handleEditProduct = (product) => {
-    setEditingProduct(product);
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
   };
 
-  const handleUpdateProduct = async (updatedData) => {
+  const handleShowAllProducts = () => {
+    setViewMode("all");
+    if (isMobile) handleDrawerToggle();
+  };
+
+  const handleShowMyProducts = () => {
+    setViewMode("edit");
+    if (isMobile) handleDrawerToggle();
+  };
+
+  const handleAddProductClick = () => {
+    setOpenDialog(true);
+    if (isMobile) handleDrawerToggle();
+  };
+
+  const handleAddProduct = async (data) => {
     try {
-      const updatedProduct = await updateProduct(editingProduct.id, updatedData);
-      setProducts(
-        products.map((p) => (p.id === editingProduct.id ? updatedProduct : p))
-      );
-      setEditingProduct(null);
+      const newProduct = await createProduct({
+        ...data,
+        sellerId: user.id,
+      });
+      setAllProducts([...allProducts, newProduct]);
+      setMyProducts([...myProducts, newProduct]);
+      setOpenDialog(false);
     } catch (error) {
-      console.error("Error updating product", error);
+      console.error("Error adding product:", error);
     }
   };
 
   const handleDeleteProduct = async (product) => {
     try {
       await deleteProduct(product.id);
-      setProducts(products.filter((p) => p.id !== product.id));
+      setAllProducts(allProducts.filter((p) => p.id !== product.id));
+      setMyProducts(myProducts.filter((p) => p.id !== product.id));
     } catch (error) {
-      console.error("Error deleting product", error);
+      console.error("Error deleting product:", error);
     }
   };
 
+  // Dummy update function; replace with your actual update logic
+  const handleUpdateProduct = async (product) => {
+    try {
+      const updatedData = { name: "New Name", description: "Updated desc" };
+      const updatedProduct = await updateProduct(product.id, updatedData);
+      const updatedAll = allProducts.map((p) =>
+        p.id === product.id ? updatedProduct : p
+      );
+      setAllProducts(updatedAll);
+      const updatedMine = myProducts.map((p) =>
+        p.id === product.id ? updatedProduct : p
+      );
+      setMyProducts(updatedMine);
+    } catch (error) {
+      console.error("Error updating product:", error);
+    }
+  };
+
+  const drawerContent = (
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <Typography variant="h6" sx={{ p: 2 }}>
+        Menu
+      </Typography>
+      <Box
+        sx={{
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          gap: 1,
+          px: 2,
+        }}
+      >
+        <Button onClick={handleShowAllProducts}>All Products</Button>
+        <Button onClick={handleAddProductClick}>Add Product</Button>
+        <Button onClick={handleShowMyProducts}>Edit Product</Button>
+      </Box>
+      <Box sx={{ p: 2, borderTop: "1px solid #ddd" }}>
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          Logged in as: <strong>{user?.name}</strong>
+        </Typography>
+        <Button color="secondary" onClick={onLogout} fullWidth>
+          Logout
+        </Button>
+      </Box>
+    </Box>
+  );
+
   return (
-    <div className="container mx-auto p-4 bg-gray-50 min-h-screen">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">Seller Dashboard</h1>
-        <Button onClick={onLogout}>Logout</Button>
-      </div>
-
-      {/* Form Container */}
-      <div className="max-w-xl mx-auto bg-white p-6 rounded shadow mb-6">
-        <h2 className="text-xl font-semibold mb-4">
-          {editingProduct ? "Edit Product" : "Add Product"}
-        </h2>
-        {editingProduct ? (
-          <ProductForm onSubmit={handleUpdateProduct} product={editingProduct} />
-        ) : (
-          <ProductForm onSubmit={handleAddProduct} />
+    <Box sx={{ display: "flex" }}>
+      <Navbar
+        title="E-Marketplace Dashboard"
+        onMenuClick={handleDrawerToggle}
+      />
+      <Sidebar
+        drawerContent={drawerContent}
+        mobileOpen={mobileOpen}
+        onClose={handleDrawerToggle}
+      />
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          mt: 8,
+        }}
+      >
+        {viewMode === "all" && (
+          <>
+            <Typography variant="h5" sx={{ mb: 2 }}>
+              All Products
+            </Typography>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "1fr 1fr",
+                  md: "1fr 1fr 1fr",
+                },
+                gap: 2,
+              }}
+            >
+              {allProducts.map((prod) => (
+                <ProductCard key={prod.id} product={prod} />
+              ))}
+            </Box>
+          </>
         )}
-      </div>
-
-      {/* Products List */}
-      <div className="flex flex-wrap">
-        {products.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            onEdit={handleEditProduct}
-            onDelete={handleDeleteProduct}
-          />
-        ))}
-      </div>
-    </div>
+        {viewMode === "edit" && (
+          <>
+            <Typography variant="h5" sx={{ mb: 2 }}>
+              My Products
+            </Typography>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "1fr 1fr",
+                  md: "1fr 1fr 1fr",
+                },
+                gap: 2,
+              }}
+            >
+              {myProducts.map((prod) => (
+                <ProductCard
+                  key={prod.id}
+                  product={prod}
+                  onDelete={() => handleDeleteProduct(prod)}
+                  onEdit={() => handleUpdateProduct(prod)}
+                  isEditable
+                />
+              ))}
+            </Box>
+          </>
+        )}
+      </Box>
+      {/* Responsive Dialog with ProductForm */}
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        title="Add New Product"
+        onConfirm={() => {}}
+      >
+        <ProductForm onSubmit={handleAddProduct} />
+      </Dialog>
+    </Box>
   );
 };
 
