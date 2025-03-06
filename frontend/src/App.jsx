@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Home from "./pages/Home";
+import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import { UserContext } from "./context/userContext";
@@ -11,13 +11,8 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        {/* Redirect to Home if logged in */}
-        <Route
-          path="/"
-          element={isAuthenticated ? <Home onLogout={logout} /> : <Navigate to="/login" />}
-        />
-
-        {/* Redirect to Home if already logged in */}
+        {/* If logged in, show the Dashboard; otherwise redirect to login */}
+        <Route path="/" element={isAuthenticated ? <Dashboard onLogout={logout} /> : <Navigate to="/login" />} />
         <Route path="/login" element={isAuthenticated ? <Navigate to="/" /> : <Login />} />
         <Route path="/signup" element={isAuthenticated ? <Navigate to="/" /> : <Signup />} />
       </Routes>
