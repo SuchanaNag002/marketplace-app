@@ -3,7 +3,7 @@ import userValidator from '../validators/userValidator.js';
 
 export const registerUser = async (req, res) => {
   try {
-    const { error, value } = userValidator.validate(req.body);
+    const { error, value } = userValidator.validate(req.body, {});
     if (error) {
       return res.status(400).json({ error: error.details[0].message });
     }

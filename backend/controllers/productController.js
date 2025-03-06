@@ -12,7 +12,7 @@ export const getProducts = async (req, res) => {
 
 export const addProduct = async (req, res) => {
   try {
-    const { error, value } = productValidator.validate(req.body);
+    const { error, value } = productValidator.validate(req.body, {});
     if (error) {
       return res.status(400).json({ error: error.details[0].message });
     }
@@ -29,7 +29,7 @@ export const addProduct = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
   try {
-    const { error, value } = productValidator.validate(req.body);
+    const { error, value } = productValidator.validate(req.body, {});
     if (error) {
       return res.status(400).json({ error: error.details[0].message });
     }
