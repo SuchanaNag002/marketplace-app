@@ -8,8 +8,14 @@ export const UserProvider = ({ children }) => {
   const storedUser = localStorage.getItem("user");
   const storedToken = localStorage.getItem("token");
 
-  const [user, setUser] = useState(storedUser ? JSON.parse(storedUser) : null);
-  const [token, setToken] = useState(storedToken || null);
+  // Check if the stored values are valid (not the string "undefined")
+  const parsedUser =
+    storedUser && storedUser !== "undefined" ? JSON.parse(storedUser) : null;
+  const parsedToken =
+    storedToken && storedToken !== "undefined" ? storedToken : null;
+
+  const [user, setUser] = useState(parsedUser);
+  const [token, setToken] = useState(parsedToken);
 
   // Login using API and persist data
   const login = async (credentials) => {

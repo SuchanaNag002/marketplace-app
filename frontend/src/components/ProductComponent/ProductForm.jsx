@@ -5,6 +5,8 @@ import Button from "../ui/button";
 const ProductForm = ({ onSubmit, product = {} }) => {
   const [name, setName] = useState(product.name || "");
   const [description, setDescription] = useState(product.description || "");
+  const [price, setPrice] = useState(product.price || 0);
+  const [imageUrl, setImageUrl] = useState(product.imageUrl || "");
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -14,7 +16,7 @@ const ProductForm = ({ onSubmit, product = {} }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="p-4 flex flex-col justify-center items-center"
+      className="flex flex-col items-center max-w-sm w-full mx-auto py-4"
     >
       <Input
         label="Product Name"
@@ -26,9 +28,17 @@ const ProductForm = ({ onSubmit, product = {} }) => {
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
-      <Button type="submit" className="w-1/2 py-6">
-        Submit
-      </Button>
+      <Input
+        label="Price"
+        value={price}
+        onChange={(e) => setPrice(e.target.value)}
+      />
+      <Input
+        label="Image Url"
+        value={imageUrl}
+        onChange={(e) => setImageUrl(e.target.value)}
+      />
+      <Button type="submit" text="Submit" className="flex justify-center mt-2" />
     </form>
   );
 };

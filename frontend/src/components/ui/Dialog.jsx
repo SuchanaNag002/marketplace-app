@@ -3,33 +3,42 @@ import {
   Dialog as MuiDialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
-  Button as MuiButton,
+  IconButton,
+  Typography
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
-const Dialog = ({ open, onClose, title, children, onConfirm }) => {
+const Dialog = ({ open, onClose, title, children }) => {
   return (
-    <MuiDialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle sx={{ backgroundColor: "black", color: "white" }}>
-        {title}
+    <MuiDialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="xs" 
+      PaperProps={{
+        sx: {
+          borderRadius: 2,
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          pb: 1,
+        }}
+      >
+        <Typography variant="h6" component="div">
+          {title}
+        </Typography>
+        {/* Close (X) button at top-right */}
+        <IconButton onClick={onClose} edge="end">
+          <CloseIcon />
+        </IconButton>
       </DialogTitle>
-      <DialogContent sx={{ backgroundColor: "white", color: "black" }}>
-        {children}
-      </DialogContent>
-      <DialogActions sx={{ backgroundColor: "black" }}>
-        <MuiButton onClick={onClose} sx={{ color: "white" }}>
-          Cancel
-        </MuiButton>
-        {onConfirm && (
-          <MuiButton
-            onClick={onConfirm}
-            variant="contained"
-            sx={{ backgroundColor: "white", color: "black" }}
-          >
-            Confirm
-          </MuiButton>
-        )}
-      </DialogActions>
+
+      <DialogContent dividers>{children}</DialogContent>
     </MuiDialog>
   );
 };
