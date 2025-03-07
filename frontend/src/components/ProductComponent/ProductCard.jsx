@@ -117,7 +117,6 @@ const ProductCard = ({
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            mb: 1,
             pl: 0.5,
             pr: 0.5,
           }}
@@ -150,7 +149,6 @@ const ProductCard = ({
       <CardActions
         sx={{
           p: { xs: 1, sm: 1.5 },
-          pt: 0,
           justifyContent: "space-between",
         }}
       >

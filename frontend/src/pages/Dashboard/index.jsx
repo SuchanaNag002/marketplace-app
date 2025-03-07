@@ -316,9 +316,6 @@ const Dashboard = ({ onLogout }) => {
         
         {viewMode === "edit" && (
           <>
-            <Typography variant="h5" sx={{ mb: 2 }}>
-              My Products
-            </Typography>
             <Box
               sx={{
                 display: "grid",
