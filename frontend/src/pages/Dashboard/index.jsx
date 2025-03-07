@@ -134,10 +134,15 @@ const Dashboard = ({ onLogout }) => {
   };
 
   const gradientStyle = {
-    background: "linear-gradient(45deg, #FF8C00, #FFA500)",
+    backgroundImage: "linear-gradient(45deg, #CC5500, #FFA333)",
+    backgroundClip: "text",
+    textFillColor: "transparent",
+    color: "transparent", 
+    fontWeight: "semibold",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
-    fontWeight: "semibold",
+    MozBackgroundClip: "text",
+    MozTextFillColor: "transparent",
   };
 
   const selectedStyle = {
@@ -168,7 +173,7 @@ const Dashboard = ({ onLogout }) => {
             </ListItemIcon>
             <ListItemText
               primary="Add Product"
-              primaryTypographyProps={{ sx: { ...gradientStyle } }}
+              primaryTypographyProps={{ sx: gradientStyle }}
             />
           </ListItemButton>
         </ListItem>
@@ -186,7 +191,7 @@ const Dashboard = ({ onLogout }) => {
             </ListItemIcon>
             <ListItemText
               primary="Edit Product"
-              primaryTypographyProps={{ sx: { ...gradientStyle } }}
+              primaryTypographyProps={{ sx: gradientStyle }}
             />
           </ListItemButton>
         </ListItem>
@@ -226,7 +231,7 @@ const Dashboard = ({ onLogout }) => {
           </ListItemIcon>
           <ListItemText
             primary="Logout"
-            primaryTypographyProps={{ sx: { ...gradientStyle } }}
+            primaryTypographyProps={{ sx: gradientStyle }}
           />
         </ListItemButton>
       </Box>

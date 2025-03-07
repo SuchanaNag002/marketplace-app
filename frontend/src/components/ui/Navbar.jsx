@@ -6,7 +6,7 @@ const drawerWidth = "13rem";
 
 const Navbar = ({ onSearchChange }) => {
   const gradientStyle = {
-    background: "linear-gradient(45deg, #FF8C00, #FFA500)",
+    background: "linear-gradient(45deg, #CC5500, #FFA333)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     fontWeight: "semibold",
