@@ -28,6 +28,8 @@ const productValidator = Joi.object({
     'string.uri': 'Image Path must be a valid image path',
     'any.invalid': 'Image must have a valid .jpeg, .jpg, or .png extension',
   }),
+  image: Joi.any().optional(), // Allow the image field to pass through
+  userId: Joi.string().optional(), // Allow userId field
 });
 
 export default productValidator;

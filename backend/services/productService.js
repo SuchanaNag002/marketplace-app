@@ -1,6 +1,5 @@
 import base from '../db_config/airtable.js';
 import fs from 'fs';
-import path from 'path';
 
 const validateProductData = (productData) => {
   const { name, description, price, quantity } = productData;
@@ -15,24 +14,27 @@ const validateProductData = (productData) => {
   }
 };
 
-const storeImageLocally = async (imageFile, imageName) => {
-  const validExtensions = ['.jpeg', '.jpg', '.png'];
-  const ext = path.extname(imageName).toLowerCase();
-  if (!validExtensions.includes(ext)) {
+const storeImageLocally = async (image, assetsBaseDir) => {
+  // Validate image format using the file's type
+  const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+  if (!validTypes.includes(image.mimetype)) {
     throw new Error("Invalid image format. Only .jpeg, .jpg, and .png are allowed.");
   }
 
-  const assetsDir = path.join(__dirname, '../assets');
+  const assetsDir = path.join(assetsBaseDir, 'assets');
   if (!fs.existsSync(assetsDir)) {
     fs.mkdirSync(assetsDir, { recursive: true });
   }
 
-  const storedFileName = `${Date.now()}-${imageName}`;
+  // Generate a unique file name with timestamp and original name
+  const uniquePrefix = Date.now();
+  const storedFileName = `${uniquePrefix}-${image.originalname}`;
   const storedPath = path.join(assetsDir, storedFileName);
 
-  await fs.promises.writeFile(storedPath, imageFile);
+  // Write the image buffer to the file system
+  await fs.promises.writeFile(storedPath, image.buffer);
 
-  return `/assets/${storedFileName}`;
+  return `/assets/${storedFileName}`; // Return relative path for storage in Airtable
 };
 
 const getProducts = async () => {
@@ -40,13 +42,14 @@ const getProducts = async () => {
   return records.map((record) => ({ id: record.id, ...record.fields }));
 };
 
-const addProduct = async (productData) => {
+const addProduct = async (productData, assetsBaseDir) => {
   validateProductData(productData);
 
-  if (productData.imageFile && productData.imageName) {
+  if (productData.image) {
     try {
-      const localImagePath = await storeImageLocally(productData.imageFile, productData.imageName);
+      const localImagePath = await storeImageLocally(productData.image, assetsBaseDir);
       productData.imageUrl = localImagePath;
+      delete productData.image; // Remove image after processing
     } catch (error) {
       throw new Error(`Image upload failed: ${error.message}`);
     }
@@ -56,7 +59,7 @@ const addProduct = async (productData) => {
   return { id: records[0].id, ...records[0].fields };
 };
 
-const updateProduct = async (id, updatedFields) => {
+const updateProduct = async (id, updatedFields, assetsBaseDir) => {
   if (updatedFields.name === undefined || updatedFields.description === undefined) {
     throw new Error("Name and description are mandatory fields.");
   }
@@ -69,10 +72,11 @@ const updateProduct = async (id, updatedFields) => {
     throw new Error("Quantity must be a positive number.");
   }
 
-  if (updatedFields.imageFile && updatedFields.imageName) {
+  if (updatedFields.image) {
     try {
-      const localImagePath = await storeImageLocally(updatedFields.imageFile, updatedFields.imageName);
+      const localImagePath = await storeImageLocally(updatedFields.image, assetsBaseDir);
       updatedFields.imageUrl = localImagePath;
+      delete updatedFields.image; // Remove image after processing
     } catch (error) {
       throw new Error(`Image upload failed: ${error.message}`);
     }
