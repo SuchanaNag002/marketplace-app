@@ -34,21 +34,13 @@ const Dashboard = ({ onLogout }) => {
   const { user } = useContext(UserContext);
   const isMobile = useMediaQuery("(max-width:600px)");
 
-  // State for controlling the mobile drawer
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  // State for which view to show: "Add Product" (dialog) or "Edit Product" (list)
-  const [viewMode, setViewMode] = useState("edit"); // default to "edit"
-
-  // Products belonging to this seller
+  const [viewMode, setViewMode] = useState("edit");
   const [myProducts, setMyProducts] = useState([]);
-
-  // Dialog state for adding a product
   const [openDialog, setOpenDialog] = useState(false);
 
   useEffect(() => {
     fetchMyProducts();
-    // eslint-disable-next-line
   }, []);
 
   const fetchMyProducts = async () => {
@@ -65,7 +57,6 @@ const Dashboard = ({ onLogout }) => {
     setMobileOpen(!mobileOpen);
   };
 
-  // Sidebar actions
   const handleAddProductClick = () => {
     setOpenDialog(true);
     if (isMobile) handleDrawerToggle();
@@ -76,7 +67,6 @@ const Dashboard = ({ onLogout }) => {
     if (isMobile) handleDrawerToggle();
   };
 
-  // Create product
   const handleAddProduct = async (data) => {
     try {
       const response = await createProduct({
@@ -93,7 +83,6 @@ const Dashboard = ({ onLogout }) => {
     }
   };
 
-  // Delete product
   const handleDeleteProduct = async (product) => {
     try {
       await deleteProduct(product.id);
@@ -103,7 +92,6 @@ const Dashboard = ({ onLogout }) => {
     }
   };
 
-  // Example product update
   const handleUpdateProduct = async (product) => {
     try {
       const updatedData = { name: "Updated Name", description: "Updated Desc" };
@@ -117,63 +105,101 @@ const Dashboard = ({ onLogout }) => {
     }
   };
 
-  // Sidebar content
+  const gradientStyle = {
+    background: "linear-gradient(45deg, #FF8C00, #FFA500)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    fontWeight: "semibold",
+  };
+
+  const selectedStyle = {
+    backgroundColor: "#3D3D3D",
+    borderRadius: "8px",
+    "&:hover": { backgroundColor: "#3D3D3D" },
+  };
+
+  const darkOrange = "#FF8C00";
+
   const drawerContent = (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100%", alignItems: "center" }}>
       <Typography variant="h6" sx={{ p: 2, color: "#fff" }}>
         Menu
       </Typography>
-      {/* List with icons */}
-      <List sx={{ flexGrow: 1 }}>
-        {/* Add Product */}
+      <List sx={{ flexGrow: 1, width: "100%", px: 2 }}>
         <ListItem disablePadding>
           <ListItemButton
             onClick={handleAddProductClick}
             sx={{
-              color: "#FFFFFF",
-              "&:hover": { backgroundColor: "#3D3D3D" },
+              justifyContent: "center",
+              ...(openDialog && selectedStyle),
+              "&:hover": selectedStyle,
             }}
           >
-            <ListItemIcon sx={{ color: "#fff" }}>
-              <AddCircleOutlineIcon />
+            <ListItemIcon sx={{ minWidth: "36px" }}>
+              <AddCircleOutlineIcon sx={{ color: darkOrange }} />
             </ListItemIcon>
-            <ListItemText primary="Add Product" />
+            <ListItemText
+              primary="Add Product"
+              primaryTypographyProps={{ sx: { ...gradientStyle } }}
+            />
           </ListItemButton>
         </ListItem>
-
-        {/* Edit Product */}
         <ListItem disablePadding>
           <ListItemButton
             onClick={handleEditProductClick}
             sx={{
-              color: "#FFFFFF",
-              "&:hover": { backgroundColor: "#3D3D3D" },
+              justifyContent: "center",
+              ...(viewMode === "edit" && !openDialog && selectedStyle),
+              "&:hover": selectedStyle,
             }}
           >
-            <ListItemIcon sx={{ color: "#fff" }}>
-              <EditIcon />
+            <ListItemIcon sx={{ minWidth: "36px" }}>
+              <EditIcon sx={{ color: darkOrange }} />
             </ListItemIcon>
-            <ListItemText primary="Edit Product" />
+            <ListItemText
+              primary="Edit Product"
+              primaryTypographyProps={{ sx: { ...gradientStyle } }}
+            />
           </ListItemButton>
         </ListItem>
       </List>
-      {/* Bottom section: user info + logout */}
-      <Box sx={{ p: 2, borderTop: "1px solid #555" }}>
-        <Typography variant="body2" sx={{ mb: 1, color: "#fff" }}>
-          Logged in as: <strong>{user?.name}</strong>
-        </Typography>
+      <Box sx={{ p: 2, borderTop: "1px solid #555", width: "100%", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 1, ml: { xs: 1, sm: 2 } }}>
+          <Box
+            sx={{
+              width: { xs: 36, sm: 40 },
+              height: { xs: 36, sm: 40 },
+              borderRadius: "50%",
+              background: "linear-gradient(45deg, #FF8C00, #FFA500)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              mr: 1,
+            }}
+          >
+            <Typography sx={{ color: "#fff", fontWeight: "semibold", fontSize: { xs: "14px", sm: "16px" } }}>
+              {user?.name?.slice(0, 2).toUpperCase()}
+            </Typography>
+          </Box>
+          <Typography variant="body2" sx={{ color: "#fff", fontWeight: "semibold" }}>
+            {user?.name}
+          </Typography>
+        </Box>
         <ListItemButton
           onClick={onLogout}
           sx={{
-            color: "#FFFFFF",
-            "&:hover": { backgroundColor: "#3D3D3D" },
-            mt: 1,
+            justifyContent: "center",
+            "&:hover": selectedStyle,
+            width: "100%",
           }}
         >
-          <ListItemIcon sx={{ color: "#fff" }}>
-            <ExitToAppIcon />
+          <ListItemIcon sx={{ minWidth: "36px" }}>
+            <ExitToAppIcon sx={{ color: darkOrange }} />
           </ListItemIcon>
-          <ListItemText primary="Logout" />
+          <ListItemText
+            primary="Logout"
+            primaryTypographyProps={{ sx: { ...gradientStyle } }}
+          />
         </ListItemButton>
       </Box>
     </Box>
@@ -181,30 +207,24 @@ const Dashboard = ({ onLogout }) => {
 
   return (
     <Box sx={{ display: "flex" }}>
-      {/* Dark top navbar */}
       <Navbar
         title="E-Marketplace Dashboard"
         onMenuClick={handleDrawerToggle}
       />
-
-      {/* Dark sidebar */}
       <Sidebar
         drawerContent={drawerContent}
         mobileOpen={mobileOpen}
         onClose={handleDrawerToggle}
       />
-
-      {/* Main content area */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: 3,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
-          mt: 8, // offset for the AppBar
+          mt: 8,
         }}
       >
-        {/* Show the seller's products with Edit/Delete */}
         {viewMode === "edit" && (
           <>
             <Typography variant="h5" sx={{ mb: 2 }}>
@@ -234,8 +254,6 @@ const Dashboard = ({ onLogout }) => {
           </>
         )}
       </Box>
-
-      {/* Dialog for adding a product */}
       <Dialog
         open={openDialog}
         onClose={() => setOpenDialog(false)}
