@@ -18,7 +18,6 @@ import Sidebar from "../../components/ui/Sidebar";
 import Dialog from "../../components/ui/Dialog";
 import { UserContext } from "../../../context/userContext";
 
-// Mock or import your real API calls
 import { getProducts, createProduct, updateProduct, deleteProduct } from "../../../api/ProductsApi";
 
 import ProductCard from "../../../components/ProductComponent/ProductCard";
