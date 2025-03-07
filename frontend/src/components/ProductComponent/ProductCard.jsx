@@ -14,7 +14,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Counter from "../ui/Counter";
 import TooltipComponent from "../ui/Tooltip";
-import { updateProduct } from "../../api/ProductsApi";
+import { createOrder } from "../../api/OrdersApi";
 
 const ProductCard = ({
   product,
@@ -30,7 +30,6 @@ const ProductCard = ({
     ? `${backendUrl}${product.imageUrl}`
     : "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
 
-  // Gradient style for the product name
   const gradientStyle = {
     backgroundImage: "linear-gradient(45deg, #CC5500, #FFA333)",
     backgroundClip: "text",
@@ -44,6 +43,7 @@ const ProductCard = ({
   };
 
   const [quantityToOrder, setQuantityToOrder] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleQuantityChange = (quantity) => {
     setQuantityToOrder(quantity);
@@ -51,12 +51,13 @@ const ProductCard = ({
 
   const handlePlaceOrder = async () => {
     if (quantityToOrder > 0) {
-      const updatedProduct = {
-        ...product,
-        quantity: product.quantity - quantityToOrder,
+      const orderData = {
+        productId: product.id,
+        quantity: quantityToOrder,
+        orderDate: new Date().toISOString(),
       };
-      await updateProduct(product.id, updatedProduct);
-      onPlaceOrder(updatedProduct); 
+      await createOrder(orderData);
+      onPlaceOrder(orderData);
     }
   };
 
@@ -77,7 +78,6 @@ const ProductCard = ({
         },
       }}
     >
-      {/* Product Image */}
       <CardMedia
         component="img"
         height="160"
@@ -91,9 +91,7 @@ const ProductCard = ({
           width: "calc(100% - 16px)",
         }}
       />
-
       <CardContent sx={{ flexGrow: 1, p: { xs: 1.5, sm: 2 }, pb: 0 }}>
-        {/* Product Name */}
         <Typography
           variant="h6"
           component="h2"
@@ -111,8 +109,6 @@ const ProductCard = ({
         >
           {product.name}
         </Typography>
-
-        {/* Product Description */}
         <Typography
           variant="body2"
           color="#CCCCCC"
@@ -130,8 +126,6 @@ const ProductCard = ({
         >
           {product.description}
         </Typography>
-
-        {/* Stock & Price */}
         <Box
           sx={{
             display: "flex",
@@ -164,8 +158,6 @@ const ProductCard = ({
           </Typography>
         </Box>
       </CardContent>
-
-      {/* Actions */}
       <CardActions
         sx={{
           p: { xs: 1, sm: 1.5 },
@@ -203,7 +195,6 @@ const ProductCard = ({
             </TooltipComponent>
           </>
         )}
-
         {isEditable && (
           <Box
             sx={{
@@ -227,7 +218,12 @@ const ProductCard = ({
             </Button>
             <Button
               size="small"
-              onClick={() => onDelete(product)}
+              onClick={async () => {
+                setIsDeleting(true);
+                await onDelete(product);
+                setIsDeleting(false);
+              }}
+              disabled={isDeleting}
               startIcon={<DeleteIcon />}
               sx={{
                 color: "#FF5555",
@@ -236,7 +232,7 @@ const ProductCard = ({
                 py: 0.5,
               }}
             >
-              Delete
+              {isDeleting ? "Deleting..." : "Delete"}
             </Button>
           </Box>
         )}
