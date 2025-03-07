@@ -18,7 +18,12 @@ import Sidebar from "../../components/ui/Sidebar";
 import Dialog from "../../components/ui/Dialog";
 import { UserContext } from "../../context/userContext";
 
-import { getProducts, createProduct, updateProduct, deleteProduct } from "../../api/ProductsApi";
+import {
+  getProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+} from "../../api/ProductsApi";
 
 import ProductCard from "../../components/ProductComponent/ProductCard";
 import ProductForm from "../../components/ProductComponent/ProductForm";
@@ -74,14 +79,17 @@ const Dashboard = ({ onLogout }) => {
   // Create product
   const handleAddProduct = async (data) => {
     try {
-      const newProduct = await createProduct({
+      const response = await createProduct({
         ...data,
         sellerId: user.id,
       });
-      setMyProducts([...myProducts, newProduct]);
+      setMyProducts([...myProducts, response]);
       setOpenDialog(false);
     } catch (error) {
-      console.error("Error adding product:", error);
+      console.error("Error in Dashboard:", error);
+      throw new Error(
+        error.response?.data?.error || "Could not add product to store!"
+      );
     }
   };
 
@@ -174,7 +182,10 @@ const Dashboard = ({ onLogout }) => {
   return (
     <Box sx={{ display: "flex" }}>
       {/* Dark top navbar */}
-      <Navbar title="E-Marketplace Dashboard" onMenuClick={handleDrawerToggle} />
+      <Navbar
+        title="E-Marketplace Dashboard"
+        onMenuClick={handleDrawerToggle}
+      />
 
       {/* Dark sidebar */}
       <Sidebar
@@ -225,7 +236,11 @@ const Dashboard = ({ onLogout }) => {
       </Box>
 
       {/* Dialog for adding a product */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} title="Add New Product">
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        title="Add New Product"
+      >
         <ProductForm onSubmit={handleAddProduct} />
       </Dialog>
     </Box>
