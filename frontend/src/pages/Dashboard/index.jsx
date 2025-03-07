@@ -8,7 +8,6 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Badge,
 } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import EditIcon from "@mui/icons-material/Edit";
@@ -42,6 +41,7 @@ const Dashboard = ({ onLogout }) => {
   const [myProducts, setMyProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
+  const [editProduct, setEditProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -51,6 +51,7 @@ const Dashboard = ({ onLogout }) => {
   const fetchMyProducts = async () => {
     try {
       const allProducts = await getProducts();
+      // Only load products that belong to the current user
       const items = allProducts.filter((p) => p.userId === user.id);
       setMyProducts(items);
       setFilteredProducts(items);
@@ -74,27 +75,31 @@ const Dashboard = ({ onLogout }) => {
     setMobileOpen(!mobileOpen);
   };
 
+  // Open dialog for adding a new product
   const handleAddProductClick = () => {
+    setEditProduct(null);
     setOpenDialog(true);
     setViewMode("edit");
     if (isMobile) handleDrawerToggle();
   };
 
-  const handleEditProductClick = () => {
+  // Open dialog for editing a product with pre-filled fields
+  const openEditDialog = (product) => {
+    setEditProduct(product);
+    setOpenDialog(true);
     setViewMode("edit");
     if (isMobile) handleDrawerToggle();
   };
 
-  const handleStoreClick = () => {
-    setViewMode("store");
-    if (isMobile) handleDrawerToggle();
-  };
-
-  const handleAddProduct = async (data) => {
+  // This function handles both adding and editing
+  const handleSubmitProduct = async (data) => {
     try {
       let productData;
       if (data instanceof FormData) {
-        data.append("userId", user.id);
+        // For adding new product, include the user id.
+        if (!editProduct) {
+          data.append("userId", user.id);
+        }
         productData = data;
         console.log("FormData entries:", [...data.entries()]);
       } else {
@@ -104,15 +109,28 @@ const Dashboard = ({ onLogout }) => {
         };
         console.log("Plain object payload:", productData);
       }
-      const response = await createProduct(productData);
-      const updatedProducts = [...myProducts, response];
-      setMyProducts(updatedProducts);
-      setFilteredProducts(updatedProducts);
+      if (editProduct) {
+        // Update the existing product
+        const updatedProduct = await updateProduct(editProduct.id, productData);
+        const updatedList = myProducts.map((p) =>
+          p.id === editProduct.id ? updatedProduct : p
+        );
+        setMyProducts(updatedList);
+        setFilteredProducts(updatedList);
+      } else {
+        // Create a new product
+        const response = await createProduct(productData);
+        const updatedProducts = [...myProducts, response];
+        setMyProducts(updatedProducts);
+        setFilteredProducts(updatedProducts);
+      }
+      setEditProduct(null);
       setOpenDialog(false);
     } catch (error) {
       console.error("Error in Dashboard:", error);
       throw new Error(
-        error.response?.data?.error || "Could not add product to store!"
+        error.response?.data?.error ||
+          (editProduct ? "Could not update product!" : "Could not add product to store!")
       );
     }
   };
@@ -125,20 +143,6 @@ const Dashboard = ({ onLogout }) => {
       setFilteredProducts(updatedProducts);
     } catch (error) {
       console.error("Error deleting product:", error);
-    }
-  };
-
-  const handleUpdateProduct = async (product) => {
-    try {
-      const updatedData = { name: "Updated Name", description: "Updated Desc" };
-      const updatedProduct = await updateProduct(product.id, updatedData);
-      const updatedList = myProducts.map((p) =>
-        p.id === product.id ? updatedProduct : p
-      );
-      setMyProducts(updatedList);
-      setFilteredProducts(updatedList);
-    } catch (error) {
-      console.error("Error updating product:", error);
     }
   };
 
@@ -182,7 +186,10 @@ const Dashboard = ({ onLogout }) => {
       <List sx={{ flexGrow: 1, width: "100%", px: 2 }}>
         <ListItem disablePadding>
           <ListItemButton
-            onClick={handleStoreClick}
+            onClick={() => {
+              setViewMode("store");
+              if (isMobile) handleDrawerToggle();
+            }}
             sx={{
               justifyContent: "center",
               ...(viewMode === "store" && !openDialog && selectedStyle),
@@ -203,7 +210,7 @@ const Dashboard = ({ onLogout }) => {
             onClick={handleAddProductClick}
             sx={{
               justifyContent: "center",
-              ...(openDialog && selectedStyle),
+              ...(!editProduct && openDialog && selectedStyle),
               "&:hover": selectedStyle,
             }}
           >
@@ -218,7 +225,12 @@ const Dashboard = ({ onLogout }) => {
         </ListItem>
         <ListItem disablePadding>
           <ListItemButton
-            onClick={handleEditProductClick}
+            onClick={() => {
+              // In this menu, we switch to edit mode without opening the dialog.
+              // Editing happens per product through its own edit button.
+              setViewMode("edit");
+              if (isMobile) handleDrawerToggle();
+            }}
             sx={{
               justifyContent: "center",
               ...(viewMode === "edit" && !openDialog && selectedStyle),
@@ -320,69 +332,69 @@ const Dashboard = ({ onLogout }) => {
           flexGrow: 1,
           p: { xs: 2, sm: 3 },
           width: { sm: `calc(100% - ${drawerWidth}px)` },
-          mt: { xs: 16, sm: 8, md: 8},
+          mt: { xs: 16, sm: 8, md: 8 },
         }}
       >
         {viewMode === "store" && (
-          <>
-            <Box
-              sx={{
-                display: "grid",
-                mb: 4,
-                gridTemplateColumns: {
-                  xs: "1fr",
-                  sm: "repeat(2, 1fr)",
-                  md: "repeat(3, 1fr)",
-                  lg: "repeat(4, 1fr)",
-                },
-                gap: { xs: 1, sm: 2 },
-              }}
-            >
-              {filteredProducts.map((prod) => (
-                <ProductCard
-                  key={prod.id}
-                  product={prod}
-                  onPlaceOrder={() => handlePlaceOrder(prod)}
-                  isStore={true}
-                />
-              ))}
-            </Box>
-          </>
+          <Box
+            sx={{
+              display: "grid",
+              mb: 4,
+              gridTemplateColumns: {
+                xs: "1fr",
+                sm: "repeat(2, 1fr)",
+                md: "repeat(3, 1fr)",
+                lg: "repeat(4, 1fr)",
+              },
+              gap: { xs: 1, sm: 2 },
+            }}
+          >
+            {filteredProducts.map((prod) => (
+              <ProductCard
+                key={prod.id}
+                product={prod}
+                onPlaceOrder={() => handlePlaceOrder(prod)}
+                isStore={true}
+              />
+            ))}
+          </Box>
         )}
 
         {viewMode === "edit" && (
-          <>
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                  xs: "1fr",
-                  sm: "repeat(2, 1fr)",
-                  md: "repeat(3, 1fr)",
-                  lg: "repeat(4, 1fr)",
-                },
-                gap: { xs: 1, sm: 2 },
-              }}
-            >
-              {filteredProducts.map((prod) => (
-                <ProductCard
-                  key={prod.id}
-                  product={prod}
-                  onDelete={() => handleDeleteProduct(prod)}
-                  onEdit={() => handleUpdateProduct(prod)}
-                  isEditable={true}
-                />
-              ))}
-            </Box>
-          </>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                sm: "repeat(2, 1fr)",
+                md: "repeat(3, 1fr)",
+                lg: "repeat(4, 1fr)",
+              },
+              gap: { xs: 1, sm: 2 },
+            }}
+          >
+            {filteredProducts.map((prod) => (
+              <ProductCard
+                key={prod.id}
+                product={prod}
+                // Instead of directly updating here, we open the edit dialog
+                onEdit={() => openEditDialog(prod)}
+                onDelete={() => handleDeleteProduct(prod)}
+                isEditable={true}
+              />
+            ))}
+          </Box>
         )}
       </Box>
       <Dialog
         open={openDialog}
-        onClose={() => setOpenDialog(false)}
-        title="Add New Product"
+        onClose={() => {
+          setOpenDialog(false);
+          setEditProduct(null);
+        }}
+        title={editProduct ? "Edit Product" : "Add New Product"}
       >
-        <ProductForm onSubmit={handleAddProduct} />
+        <ProductForm onSubmit={handleSubmitProduct} product={editProduct || {}} />
       </Dialog>
     </Box>
   );

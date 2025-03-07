@@ -1,19 +1,21 @@
 import apiClient from "../ApiClient";
 
 export const getProducts = async () => {
-  const response = await apiClient.get('/products');
+  const response = await apiClient.get("/products");
   return response.data;
 };
 
 export const createProduct = async (product) => {
-  const response = await apiClient.post('/products', product, {
-    headers: { 'Content-Type': 'multipart/form-data' }, 
+  const response = await apiClient.post("/products", product, {
+    headers: { "Content-Type": "multipart/form-data" },
   });
   return response.data;
 };
 
 export const updateProduct = async (id, product) => {
-  const response = await apiClient.put(`/products/${id}`, product);
+  const response = await apiClient.put(`/products/${id}`, product, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
   return response.data;
 };
 

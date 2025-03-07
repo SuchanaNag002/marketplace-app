@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Input from "../ui/input";
 import Button from "../ui/button";
 import { CheckCircle } from "@mui/icons-material";
 
 const ProductForm = ({ onSubmit, product = {} }) => {
+  // Pre-fill form fields when editing
   const [name, setName] = useState(product.name || "");
   const [description, setDescription] = useState(product.description || "");
   const [price, setPrice] = useState(product.price || 0);
@@ -12,6 +13,17 @@ const ProductForm = ({ onSubmit, product = {} }) => {
   const [error, setError] = useState("");
   const [isFileSelected, setIsFileSelected] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // When the product prop changes (i.e. switching between add and edit), update state.
+  useEffect(() => {
+    setName(product.name || "");
+    setDescription(product.description || "");
+    setPrice(product.price || 0);
+    setQuantity(product.quantity || 0);
+    // Do not reset image in edit mode; if needed, the user can choose a new one.
+    // Also, reset error messages.
+    setError("");
+  }, [product]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
