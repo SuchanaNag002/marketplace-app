@@ -8,7 +8,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 router.get('/', authenticate, getProducts);
 router.post('/', authenticate, upload.single('image'), addProduct); 
-router.put('/:id', authenticate, updateProduct);
+router.put('/:id', authenticate, upload.single('image'), updateProduct);
 router.delete('/:id', authenticate, deleteProduct);
 
 export default router;
