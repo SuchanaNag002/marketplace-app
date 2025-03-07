@@ -16,12 +16,12 @@ import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import Navbar from "../../components/ui/Navbar";
 import Sidebar from "../../components/ui/Sidebar";
 import Dialog from "../../components/ui/Dialog";
-import { UserContext } from "../../../context/userContext";
+import { UserContext } from "../../context/userContext";
 
-import { getProducts, createProduct, updateProduct, deleteProduct } from "../../../api/ProductsApi";
+import { getProducts, createProduct, updateProduct, deleteProduct } from "../../api/ProductsApi";
 
-import ProductCard from "../../../components/ProductComponent/ProductCard";
-import ProductForm from "../../../components/ProductComponent/ProductForm";
+import ProductCard from "../../components/ProductComponent/ProductCard";
+import ProductForm from "../../components/ProductComponent/ProductForm";
 
 const drawerWidth = 240;
 
