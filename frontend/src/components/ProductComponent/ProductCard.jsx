@@ -43,7 +43,7 @@ const ProductCard = ({
   return (
     <MuiCard
       sx={{
-        maxHeight: "360px",
+        maxHeight: "28rem",
         display: "flex",
         flexDirection: "column",
         backgroundColor: "#2A2A2A",

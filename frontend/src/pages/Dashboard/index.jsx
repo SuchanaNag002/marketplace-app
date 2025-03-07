@@ -151,7 +151,7 @@ const Dashboard = ({ onLogout }) => {
     backgroundImage: "linear-gradient(45deg, #CC5500, #FFA333)",
     backgroundClip: "text",
     textFillColor: "transparent",
-    color: "transparent", 
+    color: "transparent",
     fontWeight: "semibold",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
@@ -168,7 +168,14 @@ const Dashboard = ({ onLogout }) => {
   const darkOrange = "#FF8C00";
 
   const drawerContent = (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100%", alignItems: "center" }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        alignItems: "center",
+      }}
+    >
       <Typography variant="h6" sx={{ p: 2, color: "#fff" }}>
         Menu
       </Typography>
@@ -228,8 +235,24 @@ const Dashboard = ({ onLogout }) => {
           </ListItemButton>
         </ListItem>
       </List>
-      <Box sx={{ p: 2, borderTop: "1px solid #555", width: "100%", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-        <Box sx={{ display: "flex", alignItems: "center", mb: 1, ml: { xs: 1, sm: 2 } }}>
+      <Box
+        sx={{
+          p: 2,
+          borderTop: "1px solid #555",
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            mb: 1,
+            ml: { xs: 1, sm: 2 },
+          }}
+        >
           <Box
             sx={{
               width: { xs: 36, sm: 40 },
@@ -242,11 +265,20 @@ const Dashboard = ({ onLogout }) => {
               mr: 1,
             }}
           >
-            <Typography sx={{ color: "#fff", fontWeight: "semibold", fontSize: { xs: "14px", sm: "16px" } }}>
+            <Typography
+              sx={{
+                color: "#fff",
+                fontWeight: "semibold",
+                fontSize: { xs: "14px", sm: "16px" },
+              }}
+            >
               {user?.name?.slice(0, 2).toUpperCase()}
             </Typography>
           </Box>
-          <Typography variant="body2" sx={{ color: "#fff", fontWeight: "semibold" }}>
+          <Typography
+            variant="body2"
+            sx={{ color: "#fff", fontWeight: "semibold" }}
+          >
             {user?.name}
           </Typography>
         </Box>
@@ -272,7 +304,10 @@ const Dashboard = ({ onLogout }) => {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Navbar onSearchChange={handleSearchChange} handleDrawerToggle={handleDrawerToggle} />
+      <Navbar
+        onSearchChange={handleSearchChange}
+        handleDrawerToggle={handleDrawerToggle}
+      />
       <Sidebar
         drawerWidth={drawerWidth}
         drawerContent={drawerContent}
@@ -285,7 +320,7 @@ const Dashboard = ({ onLogout }) => {
           flexGrow: 1,
           p: { xs: 2, sm: 3 },
           width: { sm: `calc(100% - ${drawerWidth}px)` },
-          mt: { xs: 7, sm: 8 },
+          mt: { xs: 16, sm: 8, md: 8},
         }}
       >
         {viewMode === "store" && (
@@ -293,6 +328,7 @@ const Dashboard = ({ onLogout }) => {
             <Box
               sx={{
                 display: "grid",
+                mb: 4,
                 gridTemplateColumns: {
                   xs: "1fr",
                   sm: "repeat(2, 1fr)",
@@ -313,7 +349,7 @@ const Dashboard = ({ onLogout }) => {
             </Box>
           </>
         )}
-        
+
         {viewMode === "edit" && (
           <>
             <Box
