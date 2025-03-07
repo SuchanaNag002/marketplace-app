@@ -13,11 +13,21 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-const ProductCard = ({ product, onEdit, onDelete, onPlaceOrder, isEditable, isStore }) => {
-  // Default image placeholder if product image is not available
-  const defaultImage = "https://via.placeholder.com/300x200/333333/FF8C00?text=Product+Image";
-  
-  // Gradient style for titles
+const ProductCard = ({
+  product,
+  onEdit,
+  onDelete,
+  onPlaceOrder,
+  isEditable,
+  isStore,
+}) => {
+  const backendUrl = import.meta.env.VITE_BACKEND_DOMAIN;
+
+  const imageSrc = product.imageUrl?.startsWith("/assets")
+    ? `${backendUrl}${product.imageUrl}`
+    : "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+
+  // Gradient style for the product name
   const gradientStyle = {
     backgroundImage: "linear-gradient(45deg, #CC5500, #FFA333)",
     backgroundClip: "text",
@@ -31,132 +41,168 @@ const ProductCard = ({ product, onEdit, onDelete, onPlaceOrder, isEditable, isSt
   };
 
   return (
-    <MuiCard 
+    <MuiCard
       sx={{
-        height: "100%",
+        maxHeight: "360px",
         display: "flex",
         flexDirection: "column",
         backgroundColor: "#2A2A2A",
-        borderRadius: "10px",
+        borderRadius: "12px",
         overflow: "hidden",
-        transition: "transform 0.3s ease",
+        transition: "all 0.3s ease",
+        boxShadow: "0 0 15px rgba(255, 140, 0, 0.3)",
         "&:hover": {
           transform: "translateY(-5px)",
-          boxShadow: "0 12px 20px rgba(0, 0, 0, 0.3)",
+          boxShadow: "0 0 25px rgba(255, 140, 0, 0.6)",
         },
       }}
     >
+      {/* Product Image */}
       <CardMedia
         component="img"
-        height="200"
-        image={product.imageUrl || defaultImage}
+        height="160"
+        image={imageSrc}
         alt={product.name}
         sx={{
           objectFit: "cover",
           borderBottom: "2px solid #FF8C00",
+          m: 1,
+          borderRadius: "8px",
+          width: "calc(100% - 16px)",
         }}
       />
-      
-      <CardContent sx={{ flexGrow: 1, p: { xs: 1.5, sm: 2 } }}>
-        <Typography 
-          variant="h6" 
-          component="h2" 
-          sx={{ 
+
+      <CardContent sx={{ flexGrow: 1, p: { xs: 1.5, sm: 2 }, pb: 0 }}>
+        {/* Product Name */}
+        <Typography
+          variant="h6"
+          component="h2"
+          sx={{
             ...gradientStyle,
-            mb: 1,
-            fontSize: { xs: "1rem", sm: "1.25rem" },
+            mb: 0.5,
+            fontSize: { xs: "0.9rem", sm: "1.1rem" },
             overflow: "hidden",
             textOverflow: "ellipsis",
             display: "-webkit-box",
             WebkitLineClamp: 1,
             WebkitBoxOrient: "vertical",
+            pl: 0.5,
           }}
         >
           {product.name}
         </Typography>
-        
-        <Typography 
-          variant="body2" 
+
+        {/* Product Description */}
+        <Typography
+          variant="body2"
           color="#CCCCCC"
           sx={{
-            mb: 2,
+            mb: 1,
             overflow: "hidden",
             textOverflow: "ellipsis",
             display: "-webkit-box",
-            WebkitLineClamp: 3,
+            WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
-            fontSize: { xs: "0.8rem", sm: "0.875rem" },
-            minHeight: { xs: "3.6em", sm: "4.2em" },
+            fontSize: { xs: "0.75rem", sm: "0.8rem" },
+            minHeight: { xs: "2.4em", sm: "2.6em" },
+            pl: 0.5,
           }}
         >
           {product.description}
         </Typography>
-        
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-          <Chip 
+
+        {/* Stock & Price */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 1,
+            pl: 0.5,
+            pr: 0.5,
+          }}
+        >
+          <Chip
             label={`${product.quantity || 0} in stock`}
             size="small"
-            sx={{ 
-              backgroundColor: "#3D3D3D", 
+            sx={{
+              backgroundColor: "#3D3D3D",
               color: "#DDDDDD",
-              fontSize: { xs: "0.7rem", sm: "0.75rem" },
+              fontSize: { xs: "0.65rem", sm: "0.7rem" },
+              height: "22px",
             }}
           />
-          <Typography 
-            variant="h6" 
+          <Typography
+            variant="h6"
             component="span"
-            sx={{ 
-              color: "#FF8C00", 
+            sx={{
+              color: "#FF8C00",
               fontWeight: "bold",
-              fontSize: { xs: "1rem", sm: "1.25rem" },
+              fontSize: { xs: "0.9rem", sm: "1.1rem" },
             }}
           >
             ${product.price?.toFixed(2) || "0.00"}
           </Typography>
         </Box>
       </CardContent>
-      
-      <CardActions sx={{ p: { xs: 1, sm: 1.5 }, justifyContent: "space-between" }}>
+
+      {/* Actions */}
+      <CardActions
+        sx={{
+          p: { xs: 1, sm: 1.5 },
+          pt: 0,
+          justifyContent: "space-between",
+        }}
+      >
         {isEditable && (
-          <>
-            <Button 
-              size="small" 
+          <Box
+            sx={{
+              display: "flex",
+              width: "100%",
+              justifyContent: "space-between",
+            }}
+          >
+            <Button
+              size="small"
               onClick={() => onEdit(product)}
               startIcon={<EditIcon />}
-              sx={{ 
+              sx={{
                 color: "#FF8C00",
-                fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                fontSize: { xs: "0.65rem", sm: "0.7rem" },
                 "&:hover": { backgroundColor: "rgba(255, 140, 0, 0.1)" },
+                py: 0.5,
               }}
             >
               Edit
             </Button>
-            <Button 
-              size="small" 
+            <Button
+              size="small"
               onClick={() => onDelete(product)}
               startIcon={<DeleteIcon />}
-              sx={{ 
+              sx={{
                 color: "#FF5555",
-                fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                fontSize: { xs: "0.65rem", sm: "0.7rem" },
                 "&:hover": { backgroundColor: "rgba(255, 85, 85, 0.1)" },
+                py: 0.5,
               }}
             >
               Delete
             </Button>
-          </>
+          </Box>
         )}
-        
+
         {isStore && (
-          <Button 
-            size="small" 
+          <Button
+            size="small"
             fullWidth
             variant="contained"
             onClick={() => onPlaceOrder(product)}
             startIcon={<ShoppingCartIcon />}
-            sx={{ 
+            sx={{
               backgroundColor: "#FF8C00",
               "&:hover": { backgroundColor: "#CC5500" },
-              fontSize: { xs: "0.7rem", sm: "0.8rem" },
+              fontSize: { xs: "0.65rem", sm: "0.75rem" },
+              py: 0.5,
             }}
           >
             Place Order
