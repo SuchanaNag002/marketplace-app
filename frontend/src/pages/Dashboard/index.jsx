@@ -4,6 +4,7 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import EditIcon from "@mui/icons-material/Edit";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import StoreIcon from "@mui/icons-material/Store";
+import ListAltIcon from "@mui/icons-material/ListAlt";
 import Navbar from "../../components/ui/Navbar";
 import Sidebar from "../../components/ui/Sidebar";
 import Dialog from "../../components/ui/Dialog";
@@ -11,6 +12,8 @@ import { UserContext } from "../../context/userContext";
 import { getProducts, createProduct, updateProduct, deleteProduct } from "../../api/ProductsApi";
 import ProductCard from "../../components/ProductComponent/ProductCard";
 import ProductForm from "../../components/ProductComponent/ProductForm";
+import LoadingState from "../../components/ui/LoadingState";
+import EmptyState from "../../components/ui/EmptyState";
 
 const drawerWidth = 240;
 
@@ -24,6 +27,7 @@ const Dashboard = ({ onLogout }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchMyProducts();
@@ -31,12 +35,15 @@ const Dashboard = ({ onLogout }) => {
 
   const fetchMyProducts = async () => {
     try {
+      setLoading(true);
       const allProducts = await getProducts();
       const items = allProducts.filter((p) => p.userId === user.id);
       setMyProducts(items);
       setFilteredProducts(items);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching products:", error);
+      setLoading(false);
     }
   };
 
@@ -152,6 +159,12 @@ const Dashboard = ({ onLogout }) => {
             <ListItemText primary="Edit Product" primaryTypographyProps={{ sx: gradientStyle }} />
           </ListItemButton>
         </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton onClick={() => {}} sx={{ justifyContent: "center", "&:hover": selectedStyle }}>
+            <ListItemIcon sx={{ minWidth: "36px" }}><ListAltIcon sx={{ color: darkOrange }} /></ListItemIcon>
+            <ListItemText primary="My Orders" primaryTypographyProps={{ sx: gradientStyle }} />
+          </ListItemButton>
+        </ListItem>
       </List>
       <Box sx={{ p: 2, borderTop: "1px solid #555", width: "100%", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
         <Box sx={{ display: "flex", alignItems: "center", mb: 1, ml: { xs: 1, sm: 2 } }}>
@@ -168,27 +181,60 @@ const Dashboard = ({ onLogout }) => {
     </Box>
   );
 
+  const renderContent = () => {
+    if (loading) {
+      return <LoadingState />;
+    }
+    if (filteredProducts.length === 0) {
+      return <EmptyState />;
+    }
+    return (
+      <Box
+        sx={{
+          display: "grid",
+          mb: 4,
+          gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)", lg: "repeat(4, 1fr)" },
+          gap: { xs: 1, sm: 2 }
+        }}
+      >
+        {filteredProducts.map((prod) => (
+          <ProductCard
+            key={prod.id}
+            product={prod}
+            onPlaceOrder={() => handlePlaceOrder(prod)}
+            isStore={viewMode === "store"}
+            onEdit={() => openEditDialog(prod)}
+            onDelete={() => handleDeleteProduct(prod)}
+            isEditable={viewMode === "edit"}
+          />
+        ))}
+      </Box>
+    );
+  };
+
   return (
     <Box sx={{ display: "flex" }}>
       <Navbar onSearchChange={handleSearchChange} handleDrawerToggle={handleDrawerToggle} />
       <Sidebar drawerWidth={drawerWidth} drawerContent={drawerContent} mobileOpen={mobileOpen} onClose={handleDrawerToggle} />
-      <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, sm: 3 }, width: { sm: `calc(100% - ${drawerWidth}px)` }, mt: { xs: 16, sm: 8, md: 8 } }}>
-        {viewMode === "store" && (
-          <Box sx={{ display: "grid", mb: 4, gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)", lg: "repeat(4, 1fr)" }, gap: { xs: 1, sm: 2 } }}>
-            {filteredProducts.map((prod) => (
-              <ProductCard key={prod.id} product={prod} onPlaceOrder={() => handlePlaceOrder(prod)} isStore={true} />
-            ))}
-          </Box>
-        )}
-        {viewMode === "edit" && (
-          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)", lg: "repeat(4, 1fr)" }, gap: { xs: 1, sm: 2 } }}>
-            {filteredProducts.map((prod) => (
-              <ProductCard key={prod.id} product={prod} onEdit={() => openEditDialog(prod)} onDelete={() => handleDeleteProduct(prod)} isEditable={true} />
-            ))}
-          </Box>
-        )}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: { xs: 2, sm: 3 },
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          mt: { xs: 16, sm: 8, md: 8 }
+        }}
+      >
+        {renderContent()}
       </Box>
-      <Dialog open={openDialog} onClose={() => { setOpenDialog(false); setEditProduct(null); }} title={editProduct ? "Edit Product" : "Add New Product"}>
+      <Dialog
+        open={openDialog}
+        onClose={() => {
+          setOpenDialog(false);
+          setEditProduct(null);
+        }}
+        title={editProduct ? "Edit Product" : "Add New Product"}
+      >
         <ProductForm onSubmit={handleSubmitProduct} product={editProduct || {}} />
       </Dialog>
     </Box>
