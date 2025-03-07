@@ -37,7 +37,9 @@ const Dashboard = ({ onLogout }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [viewMode, setViewMode] = useState("edit");
   const [myProducts, setMyProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetchMyProducts();
@@ -46,11 +48,23 @@ const Dashboard = ({ onLogout }) => {
   const fetchMyProducts = async () => {
     try {
       const allProducts = await getProducts();
-      const sellerItems = allProducts.filter((p) => p.sellerId === user.id);
-      setMyProducts(sellerItems);
+      const items = allProducts.filter((p) => p.userId === user.id);
+      setMyProducts(items);
+      setFilteredProducts(items);
     } catch (error) {
       console.error("Error fetching products:", error);
     }
+  };
+
+  const handleSearchChange = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+    const filtered = myProducts.filter(
+      (product) =>
+        product.name.toLowerCase().includes(query) ||
+        product.description.toLowerCase().includes(query)
+    );
+    setFilteredProducts(filtered);
   };
 
   const handleDrawerToggle = () => {
@@ -69,11 +83,22 @@ const Dashboard = ({ onLogout }) => {
 
   const handleAddProduct = async (data) => {
     try {
-      const response = await createProduct({
-        ...data,
-        sellerId: user.id,
-      });
-      setMyProducts([...myProducts, response]);
+      let productData;
+      if (data instanceof FormData) {
+        data.append("userId", user.id);
+        productData = data;
+        console.log("FormData entries:", [...data.entries()]);
+      } else {
+        productData = {
+          ...data,
+          userId: user.id,
+        };
+        console.log("Plain object payload:", productData);
+      }
+      const response = await createProduct(productData);
+      const updatedProducts = [...myProducts, response];
+      setMyProducts(updatedProducts);
+      setFilteredProducts(updatedProducts);
       setOpenDialog(false);
     } catch (error) {
       console.error("Error in Dashboard:", error);
@@ -86,7 +111,9 @@ const Dashboard = ({ onLogout }) => {
   const handleDeleteProduct = async (product) => {
     try {
       await deleteProduct(product.id);
-      setMyProducts(myProducts.filter((p) => p.id !== product.id));
+      const updatedProducts = myProducts.filter((p) => p.id !== product.id);
+      setMyProducts(updatedProducts);
+      setFilteredProducts(updatedProducts);
     } catch (error) {
       console.error("Error deleting product:", error);
     }
@@ -100,6 +127,7 @@ const Dashboard = ({ onLogout }) => {
         p.id === product.id ? updatedProduct : p
       );
       setMyProducts(updatedList);
+      setFilteredProducts(updatedList);
     } catch (error) {
       console.error("Error updating product:", error);
     }
@@ -207,10 +235,7 @@ const Dashboard = ({ onLogout }) => {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Navbar
-        title="E-Marketplace Dashboard"
-        onMenuClick={handleDrawerToggle}
-      />
+      <Navbar onSearchChange={handleSearchChange} />
       <Sidebar
         drawerContent={drawerContent}
         mobileOpen={mobileOpen}
@@ -241,7 +266,7 @@ const Dashboard = ({ onLogout }) => {
                 gap: 2,
               }}
             >
-              {myProducts.map((prod) => (
+              {filteredProducts.map((prod) => (
                 <ProductCard
                   key={prod.id}
                   product={prod}

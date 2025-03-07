@@ -11,22 +11,27 @@ const ProductForm = ({ onSubmit, product = {} }) => {
   const [image, setImage] = useState(null);
   const [error, setError] = useState("");
   const [isFileSelected, setIsFileSelected] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false); 
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setIsSubmitting(true); 
+    setIsSubmitting(true);
 
     try {
-      const productData = { name, description, price, quantity };
+      const productData = {
+        name,
+        description,
+        price: parseFloat(price),
+        quantity: parseInt(quantity, 10),
+      };
 
       if (image) {
         const formData = new FormData();
         formData.append("name", name);
         formData.append("description", description);
-        formData.append("price", price);
-        formData.append("quantity", quantity);
+        formData.append("price", productData.price);
+        formData.append("quantity", productData.quantity);
         formData.append("image", image);
 
         await onSubmit(formData);
@@ -36,7 +41,7 @@ const ProductForm = ({ onSubmit, product = {} }) => {
     } catch (err) {
       setError(err.message || "Could not add product to store!");
     } finally {
-      setIsSubmitting(false); 
+      setIsSubmitting(false);
     }
   };
 
@@ -61,10 +66,28 @@ const ProductForm = ({ onSubmit, product = {} }) => {
       className="flex flex-col items-center max-w-sm w-full mx-auto py-4 space-y-4"
     >
       {error && <p className="text-red-500 text-center">{error}</p>}
-      <Input label="Product Name" value={name} onChange={(e) => setName(e.target.value)} />
-      <Input label="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
-      <Input label="Price" value={price} onChange={(e) => setPrice(e.target.value)} />
-      <Input label="Quantity" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
+      <Input
+        label="Product Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <Input
+        label="Description"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
+      <Input
+        label="Price"
+        type="number"
+        value={price}
+        onChange={(e) => setPrice(e.target.value)}
+      />
+      <Input
+        label="Quantity"
+        type="number"
+        value={quantity}
+        onChange={(e) => setQuantity(e.target.value)}
+      />
 
       <div className="mb-4 w-full flex items-center justify-between">
         <label className="block text-left mb-2">Image</label>
@@ -75,7 +98,7 @@ const ProductForm = ({ onSubmit, product = {} }) => {
             id="file-input"
             className="hidden"
             onChange={handleImageChange}
-            disabled={isFileSelected} s
+            disabled={isFileSelected}
           />
           <label
             htmlFor="file-input"
@@ -97,7 +120,9 @@ const ProductForm = ({ onSubmit, product = {} }) => {
       <Button
         type="submit"
         text={isSubmitting ? "Submitting..." : "Submit"}
-        className={`flex justify-center mt-2 ${isSubmitting ? 'bg-gray-300 cursor-not-allowed' : ''}`}
+        className={`flex justify-center mt-2 ${
+          isSubmitting ? "bg-gray-300 cursor-not-allowed" : ""
+        }`}
         disabled={isSubmitting}
       />
     </form>
