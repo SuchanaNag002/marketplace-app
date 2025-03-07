@@ -31,7 +31,7 @@ const Counter = ({ initial = 0, min = 0, max, onChange, disabled = false }) => {
             onClick={handleDecrease}
             disabled={value === min || disabled}
             size="small"
-            sx={{ color: "#FF8C00" }}
+            sx={{ color: "#FF8C00", "&.Mui-disabled": { color: "#B0B0B0" } }}
           >
             <RemoveIcon />
           </IconButton>
@@ -52,7 +52,7 @@ const Counter = ({ initial = 0, min = 0, max, onChange, disabled = false }) => {
             onClick={handleIncrease}
             disabled={value === max || disabled}
             size="small"
-            sx={{ color: "#FF8C00" }}
+            sx={{ color: "#FF8C00", "&.Mui-disabled": { color: "#B0B0B0" } }}
           >
             <AddIcon />
           </IconButton>

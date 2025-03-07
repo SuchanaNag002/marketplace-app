@@ -191,8 +191,9 @@ const ProductCard = ({
                     backgroundColor: "#FF8C00",
                     "&:hover": { backgroundColor: "#CC5500" },
                     fontSize: { xs: "0.65rem", sm: "0.75rem" },
-                    py: { xs: 0.25, sm: 0.25 }, 
-                    borderRadius: "20px", 
+                    py: { xs: 0.25, sm: 0.25 },
+                    borderRadius: "20px",
+                    "&.Mui-disabled": { backgroundColor: "#B0B0B0", color: "#ffffff" },
                   }}
                   disabled={product.quantity === 0 || quantityToOrder === 0}
                 >
