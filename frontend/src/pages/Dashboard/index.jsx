@@ -8,10 +8,12 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Badge,
 } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import EditIcon from "@mui/icons-material/Edit";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import StoreIcon from "@mui/icons-material/Store";
 
 import Navbar from "../../components/ui/Navbar";
 import Sidebar from "../../components/ui/Sidebar";
@@ -33,9 +35,10 @@ const drawerWidth = 240;
 const Dashboard = ({ onLogout }) => {
   const { user } = useContext(UserContext);
   const isMobile = useMediaQuery("(max-width:600px)");
+  const isTablet = useMediaQuery("(max-width:960px)");
 
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [viewMode, setViewMode] = useState("edit");
+  const [viewMode, setViewMode] = useState("store");
   const [myProducts, setMyProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
@@ -73,11 +76,17 @@ const Dashboard = ({ onLogout }) => {
 
   const handleAddProductClick = () => {
     setOpenDialog(true);
+    setViewMode("edit");
     if (isMobile) handleDrawerToggle();
   };
 
   const handleEditProductClick = () => {
     setViewMode("edit");
+    if (isMobile) handleDrawerToggle();
+  };
+
+  const handleStoreClick = () => {
+    setViewMode("store");
     if (isMobile) handleDrawerToggle();
   };
 
@@ -133,6 +142,11 @@ const Dashboard = ({ onLogout }) => {
     }
   };
 
+  const handlePlaceOrder = (product) => {
+    // Implement order placement logic
+    console.log("Placing order for:", product);
+  };
+
   const gradientStyle = {
     backgroundImage: "linear-gradient(45deg, #CC5500, #FFA333)",
     backgroundClip: "text",
@@ -159,6 +173,24 @@ const Dashboard = ({ onLogout }) => {
         Menu
       </Typography>
       <List sx={{ flexGrow: 1, width: "100%", px: 2 }}>
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={handleStoreClick}
+            sx={{
+              justifyContent: "center",
+              ...(viewMode === "store" && !openDialog && selectedStyle),
+              "&:hover": selectedStyle,
+            }}
+          >
+            <ListItemIcon sx={{ minWidth: "36px" }}>
+              <StoreIcon sx={{ color: darkOrange }} />
+            </ListItemIcon>
+            <ListItemText
+              primary="Go To Store"
+              primaryTypographyProps={{ sx: gradientStyle }}
+            />
+          </ListItemButton>
+        </ListItem>
         <ListItem disablePadding>
           <ListItemButton
             onClick={handleAddProductClick}
@@ -240,8 +272,9 @@ const Dashboard = ({ onLogout }) => {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Navbar onSearchChange={handleSearchChange} />
+      <Navbar onSearchChange={handleSearchChange} handleDrawerToggle={handleDrawerToggle} />
       <Sidebar
+        drawerWidth={drawerWidth}
         drawerContent={drawerContent}
         mobileOpen={mobileOpen}
         onClose={handleDrawerToggle}
@@ -250,11 +283,37 @@ const Dashboard = ({ onLogout }) => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: { xs: 2, sm: 3 },
           width: { sm: `calc(100% - ${drawerWidth}px)` },
-          mt: 8,
+          mt: { xs: 7, sm: 8 },
         }}
       >
+        {viewMode === "store" && (
+          <>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "repeat(2, 1fr)",
+                  md: "repeat(3, 1fr)",
+                  lg: "repeat(4, 1fr)",
+                },
+                gap: { xs: 1, sm: 2 },
+              }}
+            >
+              {filteredProducts.map((prod) => (
+                <ProductCard
+                  key={prod.id}
+                  product={prod}
+                  onPlaceOrder={() => handlePlaceOrder(prod)}
+                  isStore={true}
+                />
+              ))}
+            </Box>
+          </>
+        )}
+        
         {viewMode === "edit" && (
           <>
             <Typography variant="h5" sx={{ mb: 2 }}>
@@ -265,10 +324,11 @@ const Dashboard = ({ onLogout }) => {
                 display: "grid",
                 gridTemplateColumns: {
                   xs: "1fr",
-                  sm: "1fr 1fr",
-                  md: "1fr 1fr 1fr",
+                  sm: "repeat(2, 1fr)",
+                  md: "repeat(3, 1fr)",
+                  lg: "repeat(4, 1fr)",
                 },
-                gap: 2,
+                gap: { xs: 1, sm: 2 },
               }}
             >
               {filteredProducts.map((prod) => (
@@ -277,7 +337,7 @@ const Dashboard = ({ onLogout }) => {
                   product={prod}
                   onDelete={() => handleDeleteProduct(prod)}
                   onEdit={() => handleUpdateProduct(prod)}
-                  isEditable
+                  isEditable={true}
                 />
               ))}
             </Box>
