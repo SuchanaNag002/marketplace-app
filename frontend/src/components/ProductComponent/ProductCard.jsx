@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -12,6 +12,9 @@ import {
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import Counter from "../ui/Counter";
+import TooltipComponent from "../ui/Tooltip";
+import { updateProduct } from "../../api/ProductsApi";
 
 const ProductCard = ({
   product,
@@ -38,6 +41,23 @@ const ProductCard = ({
     WebkitTextFillColor: "transparent",
     MozBackgroundClip: "text",
     MozTextFillColor: "transparent",
+  };
+
+  const [quantityToOrder, setQuantityToOrder] = useState(0);
+
+  const handleQuantityChange = (quantity) => {
+    setQuantityToOrder(quantity);
+  };
+
+  const handlePlaceOrder = async () => {
+    if (quantityToOrder > 0) {
+      const updatedProduct = {
+        ...product,
+        quantity: product.quantity - quantityToOrder,
+      };
+      await updateProduct(product.id, updatedProduct);
+      onPlaceOrder(updatedProduct); 
+    }
   };
 
   return (
@@ -152,6 +172,37 @@ const ProductCard = ({
           justifyContent: "space-between",
         }}
       >
+        {isStore && (
+          <>
+            <Counter
+              max={product.quantity}
+              onChange={handleQuantityChange}
+              disabled={product.quantity === 0}
+            />
+            <TooltipComponent title={product.quantity === 0 ? "Out of stock" : ""}>
+              <span>
+                <Button
+                  size="small"
+                  fullWidth
+                  variant="contained"
+                  onClick={handlePlaceOrder}
+                  startIcon={<ShoppingCartIcon />}
+                  sx={{
+                    backgroundColor: "#FF8C00",
+                    "&:hover": { backgroundColor: "#CC5500" },
+                    fontSize: { xs: "0.65rem", sm: "0.75rem" },
+                    py: { xs: 0.25, sm: 0.25 }, 
+                    borderRadius: "20px", 
+                  }}
+                  disabled={product.quantity === 0 || quantityToOrder === 0}
+                >
+                  Place Order
+                </Button>
+              </span>
+            </TooltipComponent>
+          </>
+        )}
+
         {isEditable && (
           <Box
             sx={{
@@ -187,24 +238,6 @@ const ProductCard = ({
               Delete
             </Button>
           </Box>
-        )}
-
-        {isStore && (
-          <Button
-            size="small"
-            fullWidth
-            variant="contained"
-            onClick={() => onPlaceOrder(product)}
-            startIcon={<ShoppingCartIcon />}
-            sx={{
-              backgroundColor: "#FF8C00",
-              "&:hover": { backgroundColor: "#CC5500" },
-              fontSize: { xs: "0.65rem", sm: "0.75rem" },
-              py: 0.5,
-            }}
-          >
-            Place Order
-          </Button>
         )}
       </CardActions>
     </MuiCard>
