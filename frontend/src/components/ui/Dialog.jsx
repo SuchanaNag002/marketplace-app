@@ -29,7 +29,13 @@ const Dialog = ({ open, onClose, title, children }) => {
           pb: 1,
         }}
       >
-        <Typography variant="h6" component="div">
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{
+            fontWeight: '700', 
+          }}
+        >
           {title}
         </Typography>
         {/* Close (X) button at top-right */}
