@@ -11,10 +11,10 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        {/* If logged in, show the Dashboard; otherwise redirect to login */}
-        <Route path="/" element={isAuthenticated ? <Dashboard onLogout={logout} /> : <Navigate to="/login" />} />
-        <Route path="/login" element={isAuthenticated ? <Navigate to="/" /> : <Login />} />
-        <Route path="/signup" element={isAuthenticated ? <Navigate to="/" /> : <Signup />} />
+        <Route path="/" element={isAuthenticated ? <Navigate to="/store" /> : <Navigate to="/login" />} />
+        <Route path="/store" element={isAuthenticated ? <Dashboard onLogout={logout} /> : <Navigate to="/login" />} />
+        <Route path="/login" element={isAuthenticated ? <Navigate to="/store" /> : <Login />} />
+        <Route path="/signup" element={isAuthenticated ? <Navigate to="/store" /> : <Signup />} />
       </Routes>
     </Router>
   );

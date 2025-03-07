@@ -33,14 +33,16 @@ export const addOrderByProductIdAndUserId = async (req, res) => {
 
 export const updateOrderByOrderId = async (req, res) => {
   try {
-    const orderId = req.params.id;
+    const { id } = req.params; 
     const { error, value } = orderValidator.validate(req.body, {});
     if (error) {
       return res.status(400).json({ error: error.details[0].message });
     }
-    const order = await orderService.updateOrderByOrderId(orderId, value);
-    res.json(order);
+
+    const updatedOrder = await orderService.updateOrderByOrderId(id, value); 
+    res.json(updatedOrder);
   } catch (error) {
     res.status(500).json({ error: 'Error updating order' });
   }
 };
+

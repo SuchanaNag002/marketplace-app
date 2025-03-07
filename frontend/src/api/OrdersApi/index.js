@@ -9,3 +9,8 @@ export const createOrder = async (order) => {
   const response = await apiClient.post('/orders', order);
   return response.data;
 };
+
+export const updateOrder = async (orderId, updatedOrderData) => {
+  const response = await apiClient.put(`/orders/${orderId}`, updatedOrderData);
+  return response.data;
+};

@@ -10,15 +10,35 @@ import Sidebar from "../../components/ui/Sidebar";
 import Dialog from "../../components/ui/Dialog";
 import { UserContext } from "../../context/userContext";
 import { getProducts, createProduct, updateProduct, deleteProduct } from "../../api/ProductsApi";
+import { getOrders } from "../../api/OrdersApi";
 import ProductCard from "../../components/ProductComponent/ProductCard";
 import ProductForm from "../../components/ProductComponent/ProductForm";
 import LoadingState from "../../components/ui/LoadingState";
 import EmptyState from "../../components/ui/EmptyState";
+import { useLocation } from "react-router-dom";
 
 const drawerWidth = 240;
+const darkOrange = "#FF8C00";
+const gradientStyle = {
+  backgroundImage: "linear-gradient(45deg, #CC5500, #FFA333)",
+  backgroundClip: "text",
+  textFillColor: "transparent",
+  color: "transparent",
+  fontWeight: "semibold",
+  WebkitBackgroundClip: "text",
+  WebkitTextFillColor: "transparent",
+  MozBackgroundClip: "text",
+  MozTextFillColor: "transparent"
+};
+const selectedStyle = {
+  backgroundColor: "#3D3D3D",
+  borderRadius: "8px",
+  "&:hover": { backgroundColor: "#3D3D3D" }
+};
 
 const Dashboard = ({ onLogout }) => {
   const { user } = useContext(UserContext);
+  const location = useLocation();
   const isMobile = useMediaQuery("(max-width:600px)");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [viewMode, setViewMode] = useState("store");
@@ -30,8 +50,17 @@ const Dashboard = ({ onLogout }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchMyProducts();
-  }, []);
+    if (location.pathname === "/store") {
+      setViewMode("store");
+      fetchStoreProducts();
+    } else if (location.pathname === "/editMyProducts") {
+      setViewMode("edit");
+      fetchMyProducts();
+    } else if (location.pathname === "/myOrders") {
+      setViewMode("orders");
+      fetchMyOrders();
+    }
+  }, [location.pathname]);
 
   const fetchMyProducts = async () => {
     try {
@@ -47,15 +76,47 @@ const Dashboard = ({ onLogout }) => {
     }
   };
 
+  const fetchStoreProducts = async () => {
+    try {
+      setLoading(true);
+      const allProducts = await getProducts();
+      const items = allProducts.filter((p) => p.userId !== user.id);
+      setFilteredProducts(items);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching store products:", error);
+      setLoading(false);
+    }
+  };
+
+  const fetchMyOrders = async () => {
+    try {
+      setLoading(true);
+      const orders = await getOrders(user.id);
+      setFilteredProducts(orders);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      setLoading(false);
+    }
+  };
+
   const handleSearchChange = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
-    const filtered = myProducts.filter(
-      (product) =>
-        product.name.toLowerCase().includes(query) ||
-        product.description.toLowerCase().includes(query)
-    );
-    setFilteredProducts(filtered);
+    if (viewMode === "orders") {
+      const filtered = filteredProducts.filter((order) =>
+        order.productId.toLowerCase().includes(query)
+      );
+      setFilteredProducts(filtered);
+    } else {
+      const filtered = myProducts.filter(
+        (product) =>
+          product.name.toLowerCase().includes(query) ||
+          product.description.toLowerCase().includes(query)
+      );
+      setFilteredProducts(filtered);
+    }
   };
 
   const handleDrawerToggle = () => {
@@ -65,14 +126,12 @@ const Dashboard = ({ onLogout }) => {
   const handleAddProductClick = () => {
     setEditProduct(null);
     setOpenDialog(true);
-    setViewMode("edit");
     if (isMobile) handleDrawerToggle();
   };
 
   const openEditDialog = (product) => {
     setEditProduct(product);
     setOpenDialog(true);
-    setViewMode("edit");
     if (isMobile) handleDrawerToggle();
   };
 
@@ -92,12 +151,16 @@ const Dashboard = ({ onLogout }) => {
       }
       setEditProduct(null);
       setOpenDialog(false);
-      fetchMyProducts();
+      if (viewMode === "edit") {
+        fetchMyProducts();
+      } else if (viewMode === "store") {
+        fetchStoreProducts();
+      }
     } catch (error) {
       console.error("Error in Dashboard:", error);
       throw new Error(
         error.response?.data?.error ||
-          (editProduct ? "Could not update product!" : "Could not add product to store!")
+        (editProduct ? "Could not update product!" : "Could not add product to store!")
       );
     }
   };
@@ -117,51 +180,39 @@ const Dashboard = ({ onLogout }) => {
     console.log("Placing order for:", product);
   };
 
-  const gradientStyle = {
-    backgroundImage: "linear-gradient(45deg, #CC5500, #FFA333)",
-    backgroundClip: "text",
-    textFillColor: "transparent",
-    color: "transparent",
-    fontWeight: "semibold",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-    MozBackgroundClip: "text",
-    MozTextFillColor: "transparent",
-  };
-
-  const selectedStyle = {
-    backgroundColor: "#3D3D3D",
-    borderRadius: "8px",
-    "&:hover": { backgroundColor: "#3D3D3D" },
-  };
-
-  const darkOrange = "#FF8C00";
-
   const drawerContent = (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100%", alignItems: "center" }}>
       <Typography variant="h6" sx={{ p: 2, color: "#fff" }}>Menu</Typography>
       <List sx={{ flexGrow: 1, width: "100%", px: 2 }}>
         <ListItem disablePadding>
-          <ListItemButton onClick={() => { setViewMode("store"); if (isMobile) handleDrawerToggle(); }} sx={{ justifyContent: "center", ...(viewMode === "store" && !openDialog && selectedStyle), "&:hover": selectedStyle }}>
-            <ListItemIcon sx={{ minWidth: "36px" }}><StoreIcon sx={{ color: darkOrange }} /></ListItemIcon>
+          <ListItemButton onClick={() => (window.location.href = "/store")} sx={{ justifyContent: "center", ...(location.pathname === "/store" && selectedStyle), "&:hover": selectedStyle }}>
+            <ListItemIcon sx={{ minWidth: "36px" }}>
+              <StoreIcon sx={{ color: darkOrange }} />
+            </ListItemIcon>
             <ListItemText primary="Go To Store" primaryTypographyProps={{ sx: gradientStyle }} />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
-          <ListItemButton onClick={handleAddProductClick} sx={{ justifyContent: "center", ...(!editProduct && openDialog && selectedStyle), "&:hover": selectedStyle }}>
-            <ListItemIcon sx={{ minWidth: "36px" }}><AddCircleOutlineIcon sx={{ color: darkOrange }} /></ListItemIcon>
+          <ListItemButton onClick={handleAddProductClick} sx={{ justifyContent: "center", ...(openDialog && !editProduct && selectedStyle), "&:hover": selectedStyle }}>
+            <ListItemIcon sx={{ minWidth: "36px" }}>
+              <AddCircleOutlineIcon sx={{ color: darkOrange }} />
+            </ListItemIcon>
             <ListItemText primary="Add Product" primaryTypographyProps={{ sx: gradientStyle }} />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
-          <ListItemButton onClick={() => { setViewMode("edit"); if (isMobile) handleDrawerToggle(); }} sx={{ justifyContent: "center", ...(viewMode === "edit" && !openDialog && selectedStyle), "&:hover": selectedStyle }}>
-            <ListItemIcon sx={{ minWidth: "36px" }}><EditIcon sx={{ color: darkOrange }} /></ListItemIcon>
-            <ListItemText primary="Edit Product" primaryTypographyProps={{ sx: gradientStyle }} />
+          <ListItemButton onClick={() => (window.location.href = "/editMyProducts")} sx={{ justifyContent: "center", ...(location.pathname === "/editMyProducts" && selectedStyle), "&:hover": selectedStyle }}>
+            <ListItemIcon sx={{ minWidth: "36px" }}>
+              <EditIcon sx={{ color: darkOrange }} />
+            </ListItemIcon>
+            <ListItemText primary="Edit Products" primaryTypographyProps={{ sx: gradientStyle }} />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
-          <ListItemButton onClick={() => {}} sx={{ justifyContent: "center", "&:hover": selectedStyle }}>
-            <ListItemIcon sx={{ minWidth: "36px" }}><ListAltIcon sx={{ color: darkOrange }} /></ListItemIcon>
+          <ListItemButton onClick={() => (window.location.href = "/myOrders")} sx={{ justifyContent: "center", ...(location.pathname === "/myOrders" && selectedStyle), "&:hover": selectedStyle }}>
+            <ListItemIcon sx={{ minWidth: "36px" }}>
+              <ListAltIcon sx={{ color: darkOrange }} />
+            </ListItemIcon>
             <ListItemText primary="My Orders" primaryTypographyProps={{ sx: gradientStyle }} />
           </ListItemButton>
         </ListItem>
@@ -174,7 +225,9 @@ const Dashboard = ({ onLogout }) => {
           <Typography variant="body2" sx={{ color: "#fff", fontWeight: "semibold" }}>{user?.name}</Typography>
         </Box>
         <ListItemButton onClick={onLogout} sx={{ justifyContent: "center", "&:hover": selectedStyle, width: "100%" }}>
-          <ListItemIcon sx={{ minWidth: "36px" }}><ExitToAppIcon sx={{ color: darkOrange }} /></ListItemIcon>
+          <ListItemIcon sx={{ minWidth: "36px" }}>
+            <ExitToAppIcon sx={{ color: darkOrange }} />
+          </ListItemIcon>
           <ListItemText primary="Logout" primaryTypographyProps={{ sx: gradientStyle }} />
         </ListItemButton>
       </Box>
@@ -188,15 +241,22 @@ const Dashboard = ({ onLogout }) => {
     if (filteredProducts.length === 0) {
       return <EmptyState />;
     }
+    if (viewMode === "orders") {
+      return (
+        <Box>
+          {filteredProducts.map((order) => (
+            <Box key={order.id} sx={{ p: 2, borderBottom: "1px solid #ccc" }}>
+              <Typography variant="subtitle1">Product: {order.productId}</Typography>
+              <Typography variant="body2">Quantity: {order.quantity}</Typography>
+              <Typography variant="body2">Order Date: {new Date(order.orderDate).toLocaleDateString()}</Typography>
+              <Typography variant="body2">Arrival Date: {order.arrivalDate ? new Date(order.arrivalDate).toLocaleDateString() : "N/A"}</Typography>
+            </Box>
+          ))}
+        </Box>
+      );
+    }
     return (
-      <Box
-        sx={{
-          display: "grid",
-          mb: 4,
-          gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)", lg: "repeat(4, 1fr)" },
-          gap: { xs: 1, sm: 2 }
-        }}
-      >
+      <Box sx={{ display: "grid", mb: 4, gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)", lg: "repeat(4, 1fr)" }, gap: { xs: 1, sm: 2 } }}>
         {filteredProducts.map((prod) => (
           <ProductCard
             key={prod.id}
@@ -216,25 +276,10 @@ const Dashboard = ({ onLogout }) => {
     <Box sx={{ display: "flex" }}>
       <Navbar onSearchChange={handleSearchChange} handleDrawerToggle={handleDrawerToggle} />
       <Sidebar drawerWidth={drawerWidth} drawerContent={drawerContent} mobileOpen={mobileOpen} onClose={handleDrawerToggle} />
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: { xs: 2, sm: 3 },
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          mt: { xs: 16, sm: 8, md: 8 }
-        }}
-      >
+      <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, sm: 3 }, width: { sm: `calc(100% - ${drawerWidth}px)` }, mt: { xs: 16, sm: 8, md: 8 } }}>
         {renderContent()}
       </Box>
-      <Dialog
-        open={openDialog}
-        onClose={() => {
-          setOpenDialog(false);
-          setEditProduct(null);
-        }}
-        title={editProduct ? "Edit Product" : "Add New Product"}
-      >
+      <Dialog open={openDialog} onClose={() => { setOpenDialog(false); setEditProduct(null); }} title={editProduct ? "Edit Product" : "Add New Product"}>
         <ProductForm onSubmit={handleSubmitProduct} product={editProduct || {}} />
       </Dialog>
     </Box>
