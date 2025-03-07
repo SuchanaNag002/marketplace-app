@@ -1,7 +1,7 @@
 import React from "react";
-import { Drawer } from "@mui/material";
+import { Drawer, Box } from "@mui/material";
 
-const drawerWidth = 240;
+const drawerWidth = "13rem";
 
 const Sidebar = ({ drawerContent, mobileOpen, onClose }) => {
   return (
@@ -19,27 +19,41 @@ const Sidebar = ({ drawerContent, mobileOpen, onClose }) => {
             width: drawerWidth,
             backgroundColor: "#2D2D2D",
             color: "#FFFFFF",
+            borderRadius: "1rem",
+            margin: "0.5rem",
           },
         }}
       >
         {drawerContent}
       </Drawer>
+
       {/* Permanent drawer for larger screens */}
-      <Drawer
-        variant="permanent"
+      <Box
         sx={{
           display: { xs: "none", sm: "block" },
-          "& .MuiDrawer-paper": {
-            boxSizing: "border-box",
-            width: drawerWidth,
-            backgroundColor: "#2D2D2D",
-            color: "#FFFFFF",
-          },
+          width: drawerWidth,
+          flexShrink: 0,
         }}
-        open
       >
-        {drawerContent}
-      </Drawer>
+        <Drawer
+          variant="permanent"
+          sx={{
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: drawerWidth,
+              backgroundColor: "#2D2D2D",
+              color: "#FFFFFF",
+              borderRadius: "1rem",
+              margin: "0.5rem",
+              height: "calc(100vh - 4vh - 1rem)",
+              marginTop: "4vh", 
+            },
+          }}
+          open
+        >
+          {drawerContent}
+        </Drawer>
+      </Box>
     </>
   );
 };

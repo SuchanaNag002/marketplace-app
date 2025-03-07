@@ -1,31 +1,23 @@
 import React from "react";
-import { AppBar, Toolbar, Typography, IconButton, useMediaQuery } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
+import { AppBar, Toolbar, Typography } from "@mui/material";
 
-const Navbar = ({ title, onMenuClick }) => {
-  const isMobile = useMediaQuery("(max-width:600px)");
+const drawerWidth = "13rem"; 
 
+const Navbar = () => {
   return (
     <AppBar
       position="fixed"
       sx={{
-        backgroundColor: "#2D2D2D", // Dark Gray
-        zIndex: (theme) => theme.zIndex.drawer + 1,
+        width: { xs: "100%", sm: `calc(100% - ${drawerWidth} - 1rem)` }, 
+        ml: { sm: `${drawerWidth} + 1rem` }, 
+        backgroundColor: "#2D2D2D",
+        top: "4vh", 
+        borderRadius: "20px",
       }}
     >
       <Toolbar>
-        {isMobile && (
-          <IconButton
-            color="inherit"
-            edge="start"
-            onClick={onMenuClick}
-            sx={{ mr: 2, display: { sm: "none" } }}
-          >
-            <MenuIcon />
-          </IconButton>
-        )}
-        <Typography variant="h6" noWrap component="div" sx={{ color: "#fff" }}>
-          {title}
+        <Typography variant="h6" sx={{ color: "#fff" }}>
+          E-Marketplace Dashboard
         </Typography>
       </Toolbar>
     </AppBar>
