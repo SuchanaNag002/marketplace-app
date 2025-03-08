@@ -25,6 +25,7 @@ import OrderCard from "../../components/OrderComponent/OrderCard";
 import ProductForm from "../../components/ProductComponent/ProductForm";
 import LoadingState from "../../components/ui/LoadingState";
 import EmptyState from "../../components/ui/EmptyState";
+import AlertComponent from "../../components/ui/Alert";
 import { useLocation } from "react-router-dom";
 
 const drawerWidth = 240;
@@ -48,7 +49,14 @@ const selectedStyle = {
 
 const Dashboard = ({ onLogout }) => {
   const { user } = useContext(UserContext);
-  const { products, loading, fetchProducts, addProduct, editProduct, removeProduct } = useContext(ProductContext);
+  const {
+    products,
+    loading,
+    fetchProducts,
+    addProduct,
+    editProduct,
+    removeProduct,
+  } = useContext(ProductContext);
   const location = useLocation();
   const isMobile = useMediaQuery("(max-width:600px)");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -59,19 +67,17 @@ const Dashboard = ({ onLogout }) => {
   const [editProductData, setEditProductData] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isOrdersLoading, setIsOrdersLoading] = useState(false);
-  const [showNavbar, setShowNavbar] = useState(true); // State for navbar visibility
+  const [showNavbar, setShowNavbar] = useState(true);
+  const [alert, setAlert] = useState(null);
 
-  // Scroll handler for navbar visibility
   useEffect(() => {
     let lastScrollY = window.scrollY;
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       if (currentScrollY > lastScrollY && currentScrollY > 50) {
-        // Scrolling down and past a threshold
         setShowNavbar(false);
       } else if (currentScrollY === 0) {
-        // At the top of the page
         setShowNavbar(true);
       }
       lastScrollY = currentScrollY;
@@ -105,12 +111,12 @@ const Dashboard = ({ onLogout }) => {
   const fetchMyProducts = () => {
     const items = products.filter((p) => p.userId === user.id);
     setMyProducts(items);
-    setFilteredProducts(items);
+    setFilteredProducts(items); // Ensure filteredProducts is updated
   };
 
   const fetchStoreProducts = () => {
     const items = products.filter((p) => p.userId !== user.id);
-    setFilteredProducts(items);
+    setFilteredProducts(items); // Ensure filteredProducts is updated
   };
 
   const fetchMyOrders = async () => {
@@ -123,7 +129,7 @@ const Dashboard = ({ onLogout }) => {
       }));
       setFilteredProducts(enrichedOrders);
     } catch (error) {
-      console.error("Error fetching orders:", error);
+      setAlert({ severity: "error", message: "Failed to fetch orders" });
     } finally {
       setIsOrdersLoading(false);
     }
@@ -138,7 +144,11 @@ const Dashboard = ({ onLogout }) => {
       );
       setFilteredProducts(filtered);
     } else {
-      const filtered = (viewMode === "edit" ? myProducts : products.filter((p) => p.userId !== user.id)).filter(
+      const filtered = (
+        viewMode === "edit"
+          ? myProducts
+          : products.filter((p) => p.userId !== user.id)
+      ).filter(
         (product) =>
           product.name.toLowerCase().includes(query) ||
           product.description.toLowerCase().includes(query)
@@ -173,25 +183,43 @@ const Dashboard = ({ onLogout }) => {
         productData = { ...data, userId: user.id };
       }
       if (editProductData) {
-        await editProduct(editProductData.id, productData);
+        const updatedProduct = await editProduct(editProductData.id, productData);
+        setAlert({
+          severity: "success",
+          message: "Product updated successfully",
+        });
       } else {
-        await addProduct(productData);
+        const newProduct = await addProduct(productData);
+        setAlert({
+          severity: "success",
+          message: "Product added successfully",
+        });
+        // Immediately update filteredProducts with the new product
+        if (viewMode === "edit") {
+          setMyProducts((prev) => [...prev, newProduct]);
+          setFilteredProducts((prev) => [...prev, newProduct]);
+        } else if (viewMode === "store" && newProduct.userId !== user.id) {
+          setFilteredProducts((prev) => [...prev, newProduct]);
+        }
       }
       setEditProductData(null);
       setOpenDialog(false);
+      // Optional: Refresh all products to ensure consistency
+      await fetchProducts();
+      // Re-filter based on current viewMode
       if (viewMode === "edit") {
         fetchMyProducts();
       } else if (viewMode === "store") {
         fetchStoreProducts();
       }
     } catch (error) {
-      console.error("Error in Dashboard:", error);
-      throw new Error(
-        error.response?.data?.error ||
-          (editProductData
-            ? "Could not update product!"
-            : "Could not add product to store!")
-      );
+      setAlert({
+        severity: "error",
+        message: editProductData
+          ? "Could not update product!"
+          : "Could not add product to store!",
+      });
+      throw error;
     }
   };
 
@@ -199,8 +227,12 @@ const Dashboard = ({ onLogout }) => {
     try {
       await removeProduct(product.id);
       fetchMyProducts();
+      setAlert({
+        severity: "success",
+        message: "Product deleted successfully",
+      });
     } catch (error) {
-      console.error("Error deleting product:", error);
+      setAlert({ severity: "error", message: "Failed to delete product" });
     }
   };
 
@@ -399,7 +431,12 @@ const Dashboard = ({ onLogout }) => {
           }}
         >
           {filteredProducts.map((order) => (
-            <OrderCard key={order.id} order={order} onDeleteOrder={handleDeleteOrder} />
+            <OrderCard
+              key={order.id}
+              order={order}
+              onDeleteOrder={handleDeleteOrder}
+              setAlert={setAlert}
+            />
           ))}
         </Box>
       );
@@ -428,6 +465,7 @@ const Dashboard = ({ onLogout }) => {
             onDelete={() => handleDeleteProduct(prod)}
             isEditable={viewMode === "edit"}
             user={user}
+            setAlert={setAlert}
           />
         ))}
       </Box>
@@ -440,7 +478,7 @@ const Dashboard = ({ onLogout }) => {
         <Navbar
           onSearchChange={handleSearchChange}
           handleDrawerToggle={handleDrawerToggle}
-          searchQuery={searchQuery} 
+          searchQuery={searchQuery}
         />
       )}
       <Sidebar
@@ -455,10 +493,21 @@ const Dashboard = ({ onLogout }) => {
           flexGrow: 1,
           p: { xs: 2, sm: 3 },
           width: { sm: `calc(100% - ${drawerWidth}px)` },
-          mt: { xs: showNavbar ? 16 : 2, sm: showNavbar ? 8 : 2, md: showNavbar ? 8 : 2 },
+          mt: {
+            xs: showNavbar ? 16 : 2,
+            sm: showNavbar ? 8 : 2,
+            md: showNavbar ? 8 : 2,
+          },
         }}
       >
         {renderContent()}
+        {alert && (
+          <AlertComponent
+            severity={alert.severity}
+            message={alert.message}
+            onClose={() => setAlert(null)}
+          />
+        )}
       </Box>
       <Dialog
         open={openDialog}
