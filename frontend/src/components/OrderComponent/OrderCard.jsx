@@ -13,7 +13,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { deleteOrder } from "../../api/OrdersApi";
 import { updateProduct } from "../../api/ProductsApi";
 
-const OrderCard = ({ order, onDeleteOrder }) => {
+const OrderCard = ({ order, onDeleteOrder, setAlert }) => {
   const backendUrl = import.meta.env.VITE_BACKEND_DOMAIN;
   const [isDeleting, setIsDeleting] = useState(false);
   const gradientStyle = {
@@ -41,9 +41,10 @@ const OrderCard = ({ order, onDeleteOrder }) => {
         const updatedQuantity = (product.quantity || 0) + order.quantity;
         await updateProduct(product.id, { quantity: updatedQuantity });
       }
-      onDeleteOrder(order.id); // Notify Dashboard to remove the order from state
+      onDeleteOrder(order.id);
+      setAlert({ severity: "success", message: "Order deleted successfully" });
     } catch (error) {
-      console.error("Error deleting order:", error);
+      setAlert({ severity: "error", message: "Failed to delete order" });
     } finally {
       setIsDeleting(false);
     }
@@ -64,6 +65,9 @@ const OrderCard = ({ order, onDeleteOrder }) => {
           transform: "translateY(-5px)",
           boxShadow: "0 0 25px rgba(255, 140, 0, 0.6)",
         },
+        [":-webkit-box"]:{
+          width: "100%"
+        }
       }}
     >
       <CardMedia
@@ -79,14 +83,14 @@ const OrderCard = ({ order, onDeleteOrder }) => {
           width: "calc(100% - 16px)",
         }}
       />
-      <CardContent sx={{ flexGrow: 1, p: { xs: 1.5, sm: 2 }, pb: 0 }}>
+      <CardContent sx={{ flexGrow: 1, p: { xs: 1, sm: 2 }, pb: 0 }}>
         <Typography
           variant="h6"
           component="h2"
           sx={{
             ...gradientStyle,
             mb: 0.5,
-            fontSize: { xs: "0.9rem", sm: "1.1rem" },
+            fontSize: { xs: "0.9rem", sm: "1.1rem", md: "1.25rem" },
             overflow: "hidden",
             textOverflow: "ellipsis",
             display: "-webkit-box",
@@ -107,8 +111,8 @@ const OrderCard = ({ order, onDeleteOrder }) => {
             display: "-webkit-box",
             WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
-            fontSize: { xs: "0.75rem", sm: "0.8rem" },
-            minHeight: { xs: "2.4em", sm: "2.6em" },
+            fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.9rem" },
+            minHeight: { xs: "2.4em", sm: "2.6em", md: "2.8em" },
             pl: 0.5,
           }}
         >
@@ -129,21 +133,21 @@ const OrderCard = ({ order, onDeleteOrder }) => {
             sx={{
               backgroundColor: "#3D3D3D",
               color: "#DDDDDD",
-              fontSize: { xs: "0.65rem", sm: "0.7rem" },
-              height: "22px",
+              fontSize: { xs: "0.65rem", sm: "0.7rem", md: "0.75rem" },
+              height: { xs: "20px", sm: "22px", md: "24px" },
             }}
           />
           <Typography
             variant="body2"
             color="#FF8C00"
-            sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem" } }}
+            sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.9rem" } }}
           >
             Order Date: {new Date(order.orderDate).toLocaleDateString()}
           </Typography>
           <Typography
             variant="body2"
             color="#FF8C00"
-            sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem" } }}
+            sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.9rem" } }}
           >
             Delivery Date:{" "}
             {order.arrivalDate
@@ -152,7 +156,7 @@ const OrderCard = ({ order, onDeleteOrder }) => {
           </Typography>
         </Box>
       </CardContent>
-      <CardActions sx={{ p: { xs: 1, sm: 1.5 }, justifyContent: "center" }}>
+      <CardActions sx={{ p: { xs: 1, sm: 1.5, md: 2 }, justifyContent: "center" }}>
         <Button
           size="small"
           onClick={handleDelete}
@@ -161,6 +165,7 @@ const OrderCard = ({ order, onDeleteOrder }) => {
           sx={{
             color: "#FF5555",
             "&:hover": { backgroundColor: "rgba(255, 85, 85, 0.1)" },
+            fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.9rem" },
           }}
         >
           {isDeleting ? "Deleting..." : "Delete"}

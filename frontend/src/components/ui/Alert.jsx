@@ -23,30 +23,27 @@ const StyledAlert = styled(Alert)(({ theme, severity }) => ({
   },
   transition: "all 0.3s ease-in-out",
   "& .MuiAlert-icon": {
-    color: ({ severity }) =>
-      ({
-        success: "#90EE90",
-        error: "#FFB6C1",
-        warning: "#FFFF99",
-        info: "#ADD8E6",
-      }[severity]),
+    color: ({ severity }) => ({
+      success: "#90EE90",
+      error: "#FFB6C1",
+      warning: "#FFFF99",
+      info: "#ADD8E6",
+    })[severity],
   },
   "& .MuiAlert-message": {
-    color: ({ severity }) =>
-      ({
-        success: "#90EE90",
-        error: "#FFB6C1",
-        warning: "#FFFF99",
-        info: "#ADD8E6",
-      }[severity]),
+    color: ({ severity }) => ({
+      success: "#90EE90",
+      error: "#FFB6C1",
+      warning: "#FFFF99",
+      info: "#ADD8E6",
+    })[severity],
   },
-  backgroundColor: ({ severity }) =>
-    ({
-      success: "#00FF7F",
-      error: "#401414",
-      warning: "#4A3C1A",
-      info: "#1A2C3C",
-    }[severity]),
+  backgroundColor: ({ severity }) => ({
+    success: "#1A3C1A",
+    error: "#401414",
+    warning: "#4A3C1A",
+    info: "#1A2C3C",
+  })[severity],
 }));
 
 const AlertComponent = ({ severity, message, title, onClose, ...props }) => {
@@ -57,10 +54,8 @@ const AlertComponent = ({ severity, message, title, onClose, ...props }) => {
     error: "This is an error Alert.",
   };
 
-  const displayMessage =
-    message || defaultMessages[severity] || "No message provided";
-  const displayTitle =
-    title || severity.charAt(0).toUpperCase() + severity.slice(1);
+  const displayMessage = message || defaultMessages[severity] || "No message provided";
+  const displayTitle = title || severity.charAt(0).toUpperCase() + severity.slice(1);
 
   const getIcon = () => {
     switch (severity) {
