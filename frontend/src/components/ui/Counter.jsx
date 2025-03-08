@@ -4,7 +4,7 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import TooltipComponent from "./Tooltip";
 
-const Counter = ({ initial = 0, min = 0, max, onChange, disabled = false }) => {
+const Counter = ({ initial = 1, min = 1, max, onChange, disabled = false }) => {
   const [value, setValue] = useState(initial);
 
   const handleIncrease = () => {
@@ -25,7 +25,7 @@ const Counter = ({ initial = 0, min = 0, max, onChange, disabled = false }) => {
 
   return (
     <Box display="flex" alignItems="center">
-      <TooltipComponent title={value === min ? "Cannot decrease further" : ""}>
+      <TooltipComponent title={value === min ? "You need to order at least 1 quantity" : ""}>
         <span>
           <IconButton
             onClick={handleDecrease}

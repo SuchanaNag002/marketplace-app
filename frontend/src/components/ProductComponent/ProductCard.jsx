@@ -32,8 +32,9 @@ const ProductCard = ({
     ? `${backendUrl}${product.imageUrl}`
     : "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
 
-  const [quantityToOrder, setQuantityToOrder] = useState(0);
+  const [quantityToOrder, setQuantityToOrder] = useState(1);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isOrdering, setIsOrdering] = useState(false);
 
   const handleQuantityChange = (quantity) => {
     setQuantityToOrder(quantity);
@@ -41,6 +42,7 @@ const ProductCard = ({
 
   const handlePlaceOrder = async () => {
     if (quantityToOrder > 0 && user) {
+      setIsOrdering(true);
       const orderDate = new Date();
       const arrivalDate = new Date(orderDate);
       arrivalDate.setDate(orderDate.getDate() + 3);
@@ -59,9 +61,11 @@ const ProductCard = ({
         const updatedProduct = { ...product, quantity: updatedQuantity };
         await updateProduct(product.id, { quantity: updatedQuantity });
         onPlaceOrder(updatedProduct);
-        setQuantityToOrder(0);
+        setQuantityToOrder(1);
       } catch (error) {
         console.error("Failed to place order or update product:", error);
+      } finally {
+        setIsOrdering(false);
       }
     }
   };
@@ -149,15 +153,13 @@ const ProductCard = ({
                   onClick={handlePlaceOrder}
                   startIcon={<ShoppingCartIcon />}
                   sx={{
-                    backgroundColor: "#FF8C00",
-                    "&:hover": { backgroundColor: "#CC5500" },
+                    backgroundColor: isOrdering ? "#FFB266" : "#FF8C00",
+                    "&:hover": { backgroundColor: isOrdering ? "#FFB266" : "#CC5500" },
                     borderRadius: "20px",
                   }}
-                  disabled={
-                    product.quantity === 0 || quantityToOrder === 0 || !user
-                  }
+                  disabled={product.quantity === 0 || isOrdering || !user}
                 >
-                  Place Order
+                  {isOrdering ? "Placing Order..." : "Place Order"}
                 </Button>
               </span>
             </TooltipComponent>
