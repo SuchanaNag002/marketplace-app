@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Box, Typography, useMediaQuery, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
+import {
+  Box,
+  Typography,
+  useMediaQuery,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import EditIcon from "@mui/icons-material/Edit";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
@@ -9,7 +18,12 @@ import Navbar from "../../components/ui/Navbar";
 import Sidebar from "../../components/ui/Sidebar";
 import Dialog from "../../components/ui/Dialog";
 import { UserContext } from "../../context/userContext";
-import { getProducts, createProduct, updateProduct, deleteProduct } from "../../api/ProductsApi";
+import {
+  getProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+} from "../../api/ProductsApi";
 import { getOrders } from "../../api/OrdersApi";
 import ProductCard from "../../components/ProductComponent/ProductCard";
 import OrderCard from "../../components/OrderComponent/OrderCard";
@@ -29,12 +43,12 @@ const gradientStyle = {
   WebkitBackgroundClip: "text",
   WebkitTextFillColor: "transparent",
   MozBackgroundClip: "text",
-  MozTextFillColor: "transparent"
+  MozTextFillColor: "transparent",
 };
 const selectedStyle = {
   backgroundColor: "#3D3D3D",
   borderRadius: "8px",
-  "&:hover": { backgroundColor: "#3D3D3D" }
+  "&:hover": { backgroundColor: "#3D3D3D" },
 };
 
 const Dashboard = ({ onLogout }) => {
@@ -97,7 +111,7 @@ const Dashboard = ({ onLogout }) => {
       const products = await getProducts();
       const enrichedOrders = orders.map((order) => ({
         ...order,
-        product: products.find((p) => p.id === order.productId)
+        product: products.find((p) => p.id === order.productId),
       }));
       setFilteredProducts(enrichedOrders);
       setLoading(false);
@@ -166,7 +180,9 @@ const Dashboard = ({ onLogout }) => {
       console.error("Error in Dashboard:", error);
       throw new Error(
         error.response?.data?.error ||
-        (editProduct ? "Could not update product!" : "Could not add product to store!")
+          (editProduct
+            ? "Could not update product!"
+            : "Could not add product to store!")
       );
     }
   };
@@ -188,60 +204,161 @@ const Dashboard = ({ onLogout }) => {
     );
     if (viewMode === "edit") {
       setMyProducts((prevProducts) =>
-        prevProducts.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
+        prevProducts.map((p) =>
+          p.id === updatedProduct.id ? updatedProduct : p
+        )
       );
     }
   };
 
   const drawerContent = (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100%", alignItems: "center" }}>
-      <Typography variant="h6" sx={{ p: 2, color: "#fff" }}>Menu</Typography>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        alignItems: "center",
+      }}
+    >
+      <Typography variant="h6" sx={{ p: 2, color: "#fff" }}>
+        Menu
+      </Typography>
       <List sx={{ flexGrow: 1, width: "100%", px: 2 }}>
         <ListItem disablePadding>
-          <ListItemButton onClick={() => (window.location.href = "/store")} sx={{ justifyContent: "center", ...(location.pathname === "/store" && selectedStyle), "&:hover": selectedStyle }}>
+          <ListItemButton
+            onClick={() => (window.location.href = "/store")}
+            sx={{
+              justifyContent: "center",
+              ...(location.pathname === "/store" && selectedStyle),
+              "&:hover": selectedStyle,
+            }}
+          >
             <ListItemIcon sx={{ minWidth: "36px" }}>
               <StoreIcon sx={{ color: darkOrange }} />
             </ListItemIcon>
-            <ListItemText primary="Go To Store" primaryTypographyProps={{ sx: gradientStyle }} />
+            <ListItemText
+              primary="Go To Store"
+              primaryTypographyProps={{ sx: gradientStyle }}
+            />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
-          <ListItemButton onClick={handleAddProductClick} sx={{ justifyContent: "center", ...(openDialog && !editProduct && selectedStyle), "&:hover": selectedStyle }}>
+          <ListItemButton
+            onClick={handleAddProductClick}
+            sx={{
+              justifyContent: "center",
+              ...(openDialog && !editProduct && selectedStyle),
+              "&:hover": selectedStyle,
+            }}
+          >
             <ListItemIcon sx={{ minWidth: "36px" }}>
               <AddCircleOutlineIcon sx={{ color: darkOrange }} />
             </ListItemIcon>
-            <ListItemText primary="Add Product" primaryTypographyProps={{ sx: gradientStyle }} />
+            <ListItemText
+              primary="Add Product"
+              primaryTypographyProps={{ sx: gradientStyle }}
+            />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
-          <ListItemButton onClick={() => (window.location.href = "/editMyProducts")} sx={{ justifyContent: "center", ...(location.pathname === "/editMyProducts" && selectedStyle), "&:hover": selectedStyle }}>
+          <ListItemButton
+            onClick={() => (window.location.href = "/editMyProducts")}
+            sx={{
+              justifyContent: "center",
+              ...(location.pathname === "/editMyProducts" && selectedStyle),
+              "&:hover": selectedStyle,
+            }}
+          >
             <ListItemIcon sx={{ minWidth: "36px" }}>
               <EditIcon sx={{ color: darkOrange }} />
             </ListItemIcon>
-            <ListItemText primary="Edit Products" primaryTypographyProps={{ sx: gradientStyle }} />
+            <ListItemText
+              primary="Edit Products"
+              primaryTypographyProps={{ sx: gradientStyle }}
+            />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
-          <ListItemButton onClick={() => (window.location.href = "/myOrders")} sx={{ justifyContent: "center", ...(location.pathname === "/myOrders" && selectedStyle), "&:hover": selectedStyle }}>
+          <ListItemButton
+            onClick={() => (window.location.href = "/myOrders")}
+            sx={{
+              justifyContent: "center",
+              ...(location.pathname === "/myOrders" && selectedStyle),
+              "&:hover": selectedStyle,
+            }}
+          >
             <ListItemIcon sx={{ minWidth: "36px" }}>
               <ListAltIcon sx={{ color: darkOrange }} />
             </ListItemIcon>
-            <ListItemText primary="My Orders" primaryTypographyProps={{ sx: gradientStyle }} />
+            <ListItemText
+              primary="My Orders"
+              primaryTypographyProps={{ sx: gradientStyle }}
+            />
           </ListItemButton>
         </ListItem>
       </List>
-      <Box sx={{ p: 2, borderTop: "1px solid #555", width: "100%", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-        <Box sx={{ display: "flex", alignItems: "center", mb: 1, ml: { xs: 1, sm: 2 } }}>
-          <Box sx={{ width: { xs: 36, sm: 40 }, height: { xs: 36, sm: 40 }, borderRadius: "50%", background: "linear-gradient(45deg, #FF8C00, #FFA500)", display: "flex", alignItems: "center", justifyContent: "center", mr: 1 }}>
-            <Typography sx={{ color: "#fff", fontWeight: "semibold", fontSize: { xs: "14px", sm: "16px" } }}>{user?.name?.slice(0, 2).toUpperCase()}</Typography>
+      <Box
+        sx={{
+          p: 2,
+          borderTop: "1px solid #555",
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            mb: 1,
+            ml: { xs: 1, sm: 2 },
+          }}
+        >
+          <Box
+            sx={{
+              width: { xs: 36, sm: 40 },
+              height: { xs: 36, sm: 40 },
+              borderRadius: "50%",
+              background: "linear-gradient(45deg, #FF8C00, #FFA500)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              mr: 1,
+            }}
+          >
+            <Typography
+              sx={{
+                color: "#fff",
+                fontWeight: "semibold",
+                fontSize: { xs: "14px", sm: "16px" },
+              }}
+            >
+              {user?.name?.slice(0, 2).toUpperCase()}
+            </Typography>
           </Box>
-          <Typography variant="body2" sx={{ color: "#fff", fontWeight: "semibold" }}>{user?.name}</Typography>
+          <Typography
+            variant="body2"
+            sx={{ color: "#fff", fontWeight: "semibold" }}
+          >
+            {user?.name}
+          </Typography>
         </Box>
-        <ListItemButton onClick={onLogout} sx={{ justifyContent: "center", "&:hover": selectedStyle, width: "100%" }}>
+        <ListItemButton
+          onClick={onLogout}
+          sx={{
+            justifyContent: "center",
+            "&:hover": selectedStyle,
+            width: "100%",
+          }}
+        >
           <ListItemIcon sx={{ minWidth: "36px" }}>
             <ExitToAppIcon sx={{ color: darkOrange }} />
           </ListItemIcon>
-          <ListItemText primary="Logout" primaryTypographyProps={{ sx: gradientStyle }} />
+          <ListItemText
+            primary="Logout"
+            primaryTypographyProps={{ sx: gradientStyle }}
+          />
         </ListItemButton>
       </Box>
     </Box>
@@ -270,7 +387,7 @@ const Dashboard = ({ onLogout }) => {
           }}
         >
           {filteredProducts.map((order) => (
-            <OrderCard key={order.id} order={order} />
+            <OrderCard key={order.id} order={order} products={products} />
           ))}
         </Box>
       );
@@ -307,13 +424,39 @@ const Dashboard = ({ onLogout }) => {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Navbar onSearchChange={handleSearchChange} handleDrawerToggle={handleDrawerToggle} />
-      <Sidebar drawerWidth={drawerWidth} drawerContent={drawerContent} mobileOpen={mobileOpen} onClose={handleDrawerToggle} />
-      <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, sm: 3 }, width: { sm: `calc(100% - ${drawerWidth}px)` }, mt: { xs: 16, sm: 8, md: 8 } }}>
+      <Navbar
+        onSearchChange={handleSearchChange}
+        handleDrawerToggle={handleDrawerToggle}
+      />
+      <Sidebar
+        drawerWidth={drawerWidth}
+        drawerContent={drawerContent}
+        mobileOpen={mobileOpen}
+        onClose={handleDrawerToggle}
+      />
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: { xs: 2, sm: 3 },
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          mt: { xs: 16, sm: 8, md: 8 },
+        }}
+      >
         {renderContent()}
       </Box>
-      <Dialog open={openDialog} onClose={() => { setOpenDialog(false); setEditProduct(null); }} title={editProduct ? "Edit Product" : "Add New Product"}>
-        <ProductForm onSubmit={handleSubmitProduct} product={editProduct || {}} />
+      <Dialog
+        open={openDialog}
+        onClose={() => {
+          setOpenDialog(false);
+          setEditProduct(null);
+        }}
+        title={editProduct ? "Edit Product" : "Add New Product"}
+      >
+        <ProductForm
+          onSubmit={handleSubmitProduct}
+          product={editProduct || {}}
+        />
       </Dialog>
     </Box>
   );

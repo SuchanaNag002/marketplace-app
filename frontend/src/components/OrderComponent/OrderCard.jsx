@@ -1,9 +1,19 @@
 import React, { useState } from "react";
-import { Box, Typography, Card as MuiCard, CardMedia, CardContent, CardActions, Chip, Button } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Card as MuiCard,
+  CardMedia,
+  CardContent,
+  CardActions,
+  Chip,
+  Button,
+} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { deleteOrder } from "../../api/OrdersApi";
+import { updateProduct } from "../../api/ProductsApi";
 
-const OrderCard = ({ order }) => {
+const OrderCard = ({ order, products }) => {
   const backendUrl = import.meta.env.VITE_BACKEND_DOMAIN;
   const [isDeleting, setIsDeleting] = useState(false);
   const gradientStyle = {
@@ -17,14 +27,18 @@ const OrderCard = ({ order }) => {
     MozBackgroundClip: "text",
     MozTextFillColor: "transparent",
   };
-  const product = order.product;
-  const imageSrc = product?.imageUrl?.startsWith("/assets")
-    ? `${backendUrl}${product.imageUrl}`
-    : "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+  const imageSrc = order.imageUrl?.startsWith("/assets")
+    ? `${backendUrl}${order.imageUrl}`
+    : "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3";
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
       await deleteOrder(order.id);
+      const product = products.find((p) => p.id === order.productId);
+      if (product) {
+        const updatedQuantity = (product.quantity || 0) + order.quantity;
+        await updateProduct(order.productId, { quantity: updatedQuantity });
+      }
     } catch (error) {
       console.error("Error deleting order:", error);
     } finally {
@@ -52,7 +66,7 @@ const OrderCard = ({ order }) => {
         component="img"
         height="160"
         image={imageSrc}
-        alt={product?.name || "Product"}
+        alt="Product"
         sx={{
           objectFit: "cover",
           borderBottom: "2px solid #FF8C00",
@@ -77,7 +91,7 @@ const OrderCard = ({ order }) => {
             pl: 0.5,
           }}
         >
-          {product?.name || "Unknown Product"}
+          {order.productName || "Unknown Product"}
         </Typography>
         <Typography
           variant="body2"
@@ -94,9 +108,17 @@ const OrderCard = ({ order }) => {
             pl: 0.5,
           }}
         >
-          {product?.description || "No description available"}
+          {order.productDescription || "No description available"}
         </Typography>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, pl: 0.5, pr: 0.5 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 1,
+            pl: 0.5,
+            pr: 0.5,
+          }}
+        >
           <Chip
             label={`Quantity Ordered: ${order.quantity}`}
             size="small"
@@ -107,11 +129,22 @@ const OrderCard = ({ order }) => {
               height: "22px",
             }}
           />
-          <Typography variant="body2" color="#FF8C00" sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem" } }}>
+          <Typography
+            variant="body2"
+            color="#FF8C00"
+            sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem" } }}
+          >
             Order Date: {new Date(order.orderDate).toLocaleDateString()}
           </Typography>
-          <Typography variant="body2" color="#FF8C00" sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem" } }}>
-            Delivery Date: {order.arrivalDate ? new Date(order.arrivalDate).toLocaleDateString() : "Pending"}
+          <Typography
+            variant="body2"
+            color="#FF8C00"
+            sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem" } }}
+          >
+            Delivery Date:{" "}
+            {order.arrivalDate
+              ? new Date(order.arrivalDate).toLocaleDateString()
+              : "Pending"}
           </Typography>
         </Box>
       </CardContent>
