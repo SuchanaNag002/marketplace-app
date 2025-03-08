@@ -42,9 +42,9 @@ const OrderCard = ({ order, onDeleteOrder, setAlert }) => {
         await updateProduct(product.id, { quantity: updatedQuantity });
       }
       onDeleteOrder(order.id);
-      setAlert({ severity: "success", message: "Order deleted successfully" });
+      setAlert({ severity: "success", message: "Order cancelled successfully" });
     } catch (error) {
-      setAlert({ severity: "error", message: "Failed to delete order" });
+      setAlert({ severity: "error", message: "Failed to cancel order" });
     } finally {
       setIsDeleting(false);
     }
@@ -168,7 +168,7 @@ const OrderCard = ({ order, onDeleteOrder, setAlert }) => {
             fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.9rem" },
           }}
         >
-          {isDeleting ? "Deleting..." : "Delete"}
+          {isDeleting ? "Cancelling..." : "Cancel"}
         </Button>
       </CardActions>
     </MuiCard>
