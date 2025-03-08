@@ -12,6 +12,7 @@ import { UserContext } from "../../context/userContext";
 import { getProducts, createProduct, updateProduct, deleteProduct } from "../../api/ProductsApi";
 import { getOrders } from "../../api/OrdersApi";
 import ProductCard from "../../components/ProductComponent/ProductCard";
+import OrderCard from "../../components/OrderComponent/OrderCard";
 import ProductForm from "../../components/ProductComponent/ProductForm";
 import LoadingState from "../../components/ui/LoadingState";
 import EmptyState from "../../components/ui/EmptyState";
@@ -243,20 +244,39 @@ const Dashboard = ({ onLogout }) => {
     }
     if (viewMode === "orders") {
       return (
-        <Box>
+        <Box
+          sx={{
+            display: "grid",
+            mb: 4,
+            gridTemplateColumns: {
+              xs: "1fr",
+              sm: "repeat(2, 1fr)",
+              md: "repeat(3, 1fr)",
+              lg: "repeat(4, 1fr)",
+            },
+            gap: { xs: 1, sm: 2 },
+          }}
+        >
           {filteredProducts.map((order) => (
-            <Box key={order.id} sx={{ p: 2, borderBottom: "1px solid #ccc" }}>
-              <Typography variant="subtitle1">Product: {order.productId}</Typography>
-              <Typography variant="body2">Quantity: {order.quantity}</Typography>
-              <Typography variant="body2">Order Date: {new Date(order.orderDate).toLocaleDateString()}</Typography>
-              <Typography variant="body2">Arrival Date: {order.arrivalDate ? new Date(order.arrivalDate).toLocaleDateString() : "N/A"}</Typography>
-            </Box>
+            <OrderCard key={order.id} order={order} />
           ))}
         </Box>
       );
     }
     return (
-      <Box sx={{ display: "grid", mb: 4, gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)", lg: "repeat(4, 1fr)" }, gap: { xs: 1, sm: 2 } }}>
+      <Box
+        sx={{
+          display: "grid",
+          mb: 4,
+          gridTemplateColumns: {
+            xs: "1fr",
+            sm: "repeat(2, 1fr)",
+            md: "repeat(3, 1fr)",
+            lg: "repeat(4, 1fr)",
+          },
+          gap: { xs: 1, sm: 2 },
+        }}
+      >
         {filteredProducts.map((prod) => (
           <ProductCard
             key={prod.id}
