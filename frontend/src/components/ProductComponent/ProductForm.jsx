@@ -20,8 +20,6 @@ const ProductForm = ({ onSubmit, product = {} }) => {
     setDescription(product.description || "");
     setPrice(product.price || 0);
     setQuantity(product.quantity || 0);
-    // Do not reset image in edit mode; if needed, the user can choose a new one.
-    // Also, reset error messages.
     setError("");
   }, [product]);
 
