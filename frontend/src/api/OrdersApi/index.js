@@ -16,6 +16,6 @@ export const updateOrder = async (orderId, updatedOrderData) => {
 };
 
 export const deleteOrder = async (orderId) => {
-  const response = await apiClient.put(`/orders/${orderId}`);
+  const response = await apiClient.delete(`/orders/${orderId}`);
   return response.data;
 };
