@@ -15,11 +15,10 @@ const ProductCard = ({ product, onEdit, onDelete, onPlaceOrder, isEditable, isSt
   const [isDeleting, setIsDeleting] = useState(false);
   const [isOrdering, setIsOrdering] = useState(false);
   const [counterKey, setCounterKey] = useState(0);
-
+  const isOwnProduct = user && product.userId === user.id;
   const handleQuantityChange = (quantity) => {
     setQuantityToOrder(quantity);
   };
-
   const handlePlaceOrder = async () => {
     if (quantityToOrder > 0 && user) {
       setIsOrdering(true);
@@ -40,7 +39,7 @@ const ProductCard = ({ product, onEdit, onDelete, onPlaceOrder, isEditable, isSt
         await updateProduct(product.id, { quantity: updatedQuantity });
         onPlaceOrder(updatedProduct);
         setQuantityToOrder(1);
-        setCounterKey(prev => prev + 1);
+        setCounterKey((prev) => prev + 1);
         setAlert({ severity: "success", message: "Order placed successfully" });
       } catch (error) {
         setAlert({ severity: "error", message: "Failed to place order" });
@@ -49,7 +48,6 @@ const ProductCard = ({ product, onEdit, onDelete, onPlaceOrder, isEditable, isSt
       }
     }
   };
-
   return (
     <MuiCard
       sx={{
@@ -97,27 +95,57 @@ const ProductCard = ({ product, onEdit, onDelete, onPlaceOrder, isEditable, isSt
       <CardActions sx={{ p: { xs: 1, sm: 1.5 }, justifyContent: "space-between" }}>
         {isStore && (
           <>
-            <Counter key={counterKey} max={product.quantity} onChange={handleQuantityChange} disabled={product.quantity === 0} />
-            <TooltipComponent title={product.quantity === 0 ? "Out of stock" : ""}>
-              <span>
-                <Button
-                  size="small"
-                  fullWidth
-                  variant="contained"
-                  onClick={handlePlaceOrder}
-                  startIcon={<ShoppingCartIcon />}
-                  sx={{
-                    backgroundColor: isOrdering ? "#FFB266" : "#FF8C00",
-                    "&:hover": { backgroundColor: isOrdering ? "#FFB266" : "#CC5500" },
-                    borderRadius: "20px",
-                    "&.Mui-disabled": { backgroundColor: "#FFB266" }
-                  }}
-                  disabled={product.quantity === 0 || isOrdering || !user}
-                >
-                  {isOrdering ? "Placing Order..." : "Place Order"}
-                </Button>
-              </span>
-            </TooltipComponent>
+            {isOwnProduct ? (
+              <TooltipComponent title="This product was uploaded by you. Hence you cannot purchase it.">
+                <span>
+                  <Counter key={counterKey} max={product.quantity} onChange={handleQuantityChange} disabled />
+                </span>
+              </TooltipComponent>
+            ) : (
+              <Counter key={counterKey} max={product.quantity} onChange={handleQuantityChange} disabled={product.quantity === 0} />
+            )}
+            {isOwnProduct ? (
+              <TooltipComponent title="This product was uploaded by you. Hence you cannot purchase it.">
+                <span>
+                  <Button
+                    size="small"
+                    fullWidth
+                    variant="contained"
+                    startIcon={<ShoppingCartIcon />}
+                    sx={{
+                      backgroundColor: "#FF8C00",
+                      "&:hover": { backgroundColor: "#CC5500" },
+                      borderRadius: "20px",
+                      "&.Mui-disabled": { backgroundColor: "#FFB266" },
+                    }}
+                    disabled
+                  >
+                    Place Order
+                  </Button>
+                </span>
+              </TooltipComponent>
+            ) : (
+              <TooltipComponent title={product.quantity === 0 ? "Out of stock" : ""}>
+                <span>
+                  <Button
+                    size="small"
+                    fullWidth
+                    variant="contained"
+                    onClick={handlePlaceOrder}
+                    startIcon={<ShoppingCartIcon />}
+                    sx={{
+                      backgroundColor: isOrdering ? "#FFB266" : "#FF8C00",
+                      "&:hover": { backgroundColor: isOrdering ? "#FFB266" : "#CC5500" },
+                      borderRadius: "20px",
+                      "&.Mui-disabled": { backgroundColor: "#FFB266" },
+                    }}
+                    disabled={product.quantity === 0 || isOrdering || !user}
+                  >
+                    {isOrdering ? "Placing Order..." : "Place Order"}
+                  </Button>
+                </span>
+              </TooltipComponent>
+            )}
           </>
         )}
         {isEditable && (
