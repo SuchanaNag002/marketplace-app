@@ -71,13 +71,6 @@ const Dashboard = ({ onLogout }) => {
   }, []);
 
   useEffect(() => {
-    const loadProducts = async () => {
-      await fetchProducts();
-    };
-    loadProducts();
-  }, []);
-
-  useEffect(() => {
     if (!products.length || loading) return;
     if (location.pathname === "/store") {
       setViewMode("store");

@@ -1,14 +1,13 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useEffect } from "react";
+import * as jwtDecode from "jwt-decode";
 import { login as loginApi, signup as signupApi } from "../api/AuthApi/index";
 
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  // Attempt to retrieve stored auth data from localStorage
   const storedUser = localStorage.getItem("user");
   const storedToken = localStorage.getItem("token");
 
-  // Check if the stored values are valid (not the string "undefined")
   const parsedUser =
     storedUser && storedUser !== "undefined" ? JSON.parse(storedUser) : null;
   const parsedToken =
@@ -17,7 +16,26 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(parsedUser);
   const [token, setToken] = useState(parsedToken);
 
-  // Login using API and persist data
+  const logout = () => {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+  };
+
+  useEffect(() => {
+    if (token) {
+      try {
+        const decoded = jwtDecode.default(token);
+        if (decoded.exp * 1000 < Date.now()) {
+          logout();
+        }
+      } catch (error) {
+        logout();
+      }
+    }
+  }, [token]);
+
   const login = async (credentials) => {
     try {
       const data = await loginApi(credentials);
@@ -31,7 +49,6 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  // Signup using API and persist data
   const signup = async (userData) => {
     try {
       const data = await signupApi(userData);
@@ -45,15 +62,6 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  // Logout clears state and removes persisted auth data
-  const logout = () => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-  };
-
-  // A simple flag to check if the user is logged in
   const isAuthenticated = !!user;
 
   return (
