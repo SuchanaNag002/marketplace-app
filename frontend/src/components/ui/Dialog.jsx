@@ -4,17 +4,23 @@ import {
   DialogTitle,
   DialogContent,
   IconButton,
-  Typography
+  Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
 const Dialog = ({ open, onClose, title, children }) => {
+  const gradientStyle = {
+    background: "linear-gradient(45deg, #CC5500, #FFA333)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    fontWeight: "semibold",
+  };
   return (
     <MuiDialog
       open={open}
       onClose={onClose}
       fullWidth
-      maxWidth="xs" 
+      maxWidth="xs"
       PaperProps={{
         sx: {
           borderRadius: 2,
@@ -33,7 +39,8 @@ const Dialog = ({ open, onClose, title, children }) => {
           variant="h6"
           component="div"
           sx={{
-            fontWeight: '700', 
+            ...gradientStyle,
+            fontWeight: "700",
           }}
         >
           {title}
