@@ -12,12 +12,9 @@ const ProductForm = ({ onSubmit, product = {}, setAlert }) => {
   const [error, setError] = useState("");
   const [isFileSelected, setIsFileSelected] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Track whether the form has been submitted to avoid clearing error
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
   useEffect(() => {
-    // Only reset the form fields and error when product changes AND the form hasn't been submitted
     if (!hasSubmitted) {
       setName(product.name || "");
       setDescription(product.description || "");
