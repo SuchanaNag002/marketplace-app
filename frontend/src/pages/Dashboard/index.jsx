@@ -17,7 +17,7 @@ import ProductForm from "../../components/ProductComponent/ProductForm";
 import LoadingState from "../../components/ui/LoadingState";
 import EmptyState from "../../components/ui/EmptyState";
 import AlertComponent from "../../components/ui/Alert";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const drawerWidth = 240;
 const darkOrange = "#FF8C00";
@@ -42,6 +42,7 @@ const Dashboard = ({ onLogout }) => {
   const { user } = useContext(UserContext);
   const { products, loading, fetchProducts, addProduct, editProduct, removeProduct } = useContext(ProductContext);
   const location = useLocation();
+  const navigate = useNavigate();
   const isMobile = useMediaQuery("(max-width:600px)");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [viewMode, setViewMode] = useState("store");
@@ -53,6 +54,7 @@ const Dashboard = ({ onLogout }) => {
   const [isOrdersLoading, setIsOrdersLoading] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
   const [alert, setAlert] = useState(null);
+
   useEffect(() => {
     let lastScrollY = window.scrollY;
     const handleScroll = () => {
@@ -67,12 +69,14 @@ const Dashboard = ({ onLogout }) => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
   useEffect(() => {
     const loadProducts = async () => {
       await fetchProducts();
     };
     loadProducts();
   }, []);
+
   useEffect(() => {
     if (!products.length || loading) return;
     if (location.pathname === "/store") {
@@ -86,14 +90,17 @@ const Dashboard = ({ onLogout }) => {
       fetchMyOrders();
     }
   }, [location.pathname, products, loading]);
+
   const fetchMyProducts = () => {
     const items = products.filter((p) => p.userId === user.id);
     setMyProducts(items);
     setFilteredProducts(items);
   };
+
   const fetchStoreProducts = () => {
     setFilteredProducts(products);
   };
+
   const fetchMyOrders = async () => {
     try {
       setIsOrdersLoading(true);
@@ -109,6 +116,7 @@ const Dashboard = ({ onLogout }) => {
       setIsOrdersLoading(false);
     }
   };
+
   const handleSearchChange = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
@@ -126,19 +134,23 @@ const Dashboard = ({ onLogout }) => {
       setFilteredProducts(filtered);
     }
   };
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
+
   const handleAddProductClick = () => {
     setEditProductData(null);
     setOpenDialog(true);
     if (isMobile) handleDrawerToggle();
   };
+
   const openEditDialog = (product) => {
     setEditProductData(product);
     setOpenDialog(true);
     if (isMobile) handleDrawerToggle();
   };
+
   const handleSubmitProduct = async (data) => {
     try {
       let productData;
@@ -156,8 +168,6 @@ const Dashboard = ({ onLogout }) => {
         setAlert({ severity: "success", message: "Product added successfully" });
         if (viewMode === "edit") {
           setMyProducts((prev) => [...prev, newProduct]);
-          setFilteredProducts((prev) => [...prev, newProduct]);
-        } else if (viewMode === "store" && newProduct.userId !== user.id) {
           setFilteredProducts((prev) => [...prev, newProduct]);
         } else {
           setFilteredProducts((prev) => [...prev, newProduct]);
@@ -179,6 +189,7 @@ const Dashboard = ({ onLogout }) => {
       throw error;
     }
   };
+
   const handleDeleteProduct = async (product) => {
     try {
       await removeProduct(product.id);
@@ -188,6 +199,7 @@ const Dashboard = ({ onLogout }) => {
       setAlert({ severity: "error", message: "Failed to delete product" });
     }
   };
+
   const handlePlaceOrder = (updatedProduct) => {
     setFilteredProducts((prevProducts) =>
       prevProducts.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
@@ -198,32 +210,23 @@ const Dashboard = ({ onLogout }) => {
       );
     }
   };
+
   const handleDeleteOrder = (orderId) => {
     setFilteredProducts((prevProducts) =>
       prevProducts.filter((order) => order.id !== orderId)
     );
   };
+
   const drawerContent = (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-        alignItems: "center",
-      }}
-    >
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100%", alignItems: "center" }}>
       <Typography variant="h6" sx={{ p: 2, color: "#fff" }}>
         Menu
       </Typography>
       <List sx={{ flexGrow: 1, width: "100%", px: 2 }}>
         <ListItem disablePadding>
           <ListItemButton
-            onClick={() => (window.location.href = "/store")}
-            sx={{
-              justifyContent: "center",
-              ...(location.pathname === "/store" && selectedStyle),
-              "&:hover": selectedStyle,
-            }}
+            onClick={() => navigate("/store")}
+            sx={{ justifyContent: "center", ...(location.pathname === "/store" && selectedStyle), "&:hover": selectedStyle }}
           >
             <ListItemIcon sx={{ minWidth: "36px" }}>
               <StoreIcon sx={{ color: darkOrange }} />
@@ -234,11 +237,7 @@ const Dashboard = ({ onLogout }) => {
         <ListItem disablePadding>
           <ListItemButton
             onClick={handleAddProductClick}
-            sx={{
-              justifyContent: "center",
-              ...(openDialog && !editProductData && selectedStyle),
-              "&:hover": selectedStyle,
-            }}
+            sx={{ justifyContent: "center", ...(openDialog && !editProductData && selectedStyle), "&:hover": selectedStyle }}
           >
             <ListItemIcon sx={{ minWidth: "36px" }}>
               <AddCircleOutlineIcon sx={{ color: darkOrange }} />
@@ -248,12 +247,8 @@ const Dashboard = ({ onLogout }) => {
         </ListItem>
         <ListItem disablePadding>
           <ListItemButton
-            onClick={() => (window.location.href = "/editMyProducts")}
-            sx={{
-              justifyContent: "center",
-              ...(location.pathname === "/editMyProducts" && selectedStyle),
-              "&:hover": selectedStyle,
-            }}
+            onClick={() => navigate("/editMyProducts")}
+            sx={{ justifyContent: "center", ...(location.pathname === "/editMyProducts" && selectedStyle), "&:hover": selectedStyle }}
           >
             <ListItemIcon sx={{ minWidth: "36px" }}>
               <EditIcon sx={{ color: darkOrange }} />
@@ -263,12 +258,8 @@ const Dashboard = ({ onLogout }) => {
         </ListItem>
         <ListItem disablePadding>
           <ListItemButton
-            onClick={() => (window.location.href = "/myOrders")}
-            sx={{
-              justifyContent: "center",
-              ...(location.pathname === "/myOrders" && selectedStyle),
-              "&:hover": selectedStyle,
-            }}
+            onClick={() => navigate("/myOrders")}
+            sx={{ justifyContent: "center", ...(location.pathname === "/myOrders" && selectedStyle), "&:hover": selectedStyle }}
           >
             <ListItemIcon sx={{ minWidth: "36px" }}>
               <ListAltIcon sx={{ color: darkOrange }} />
@@ -277,29 +268,9 @@ const Dashboard = ({ onLogout }) => {
           </ListItemButton>
         </ListItem>
       </List>
-      <Box
-        sx={{
-          p: 2,
-          borderTop: "1px solid #555",
-          width: "100%",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
-        }}
-      >
+      <Box sx={{ p: 2, borderTop: "1px solid #555", width: "100%", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
         <Box sx={{ display: "flex", alignItems: "center", mb: 1, ml: { xs: 1, sm: 2 } }}>
-          <Box
-            sx={{
-              width: { xs: 36, sm: 40 },
-              height: { xs: 36, sm: 40 },
-              borderRadius: "50%",
-              background: "linear-gradient(45deg, #FF8C00, #FFA500)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              mr: 1,
-            }}
-          >
+          <Box sx={{ width: { xs: 36, sm: 40 }, height: { xs: 36, sm: 40 }, borderRadius: "50%", background: "linear-gradient(45deg, #FF8C00, #FFA500)", display: "flex", alignItems: "center", justifyContent: "center", mr: 1 }}>
             <Typography sx={{ color: "#fff", fontWeight: "semibold", fontSize: { xs: "14px", sm: "16px" } }}>
               {user?.name?.slice(0, 2).toUpperCase()}
             </Typography>
@@ -317,6 +288,7 @@ const Dashboard = ({ onLogout }) => {
       </Box>
     </Box>
   );
+
   const renderContent = () => {
     if (loading || isOrdersLoading) {
       return <LoadingState />;
@@ -330,12 +302,7 @@ const Dashboard = ({ onLogout }) => {
           sx={{
             display: "grid",
             mb: 4,
-            gridTemplateColumns: {
-              xs: "1fr",
-              sm: "repeat(2, 1fr)",
-              md: "repeat(3, 1fr)",
-              lg: "repeat(4, 1fr)",
-            },
+            gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)", lg: "repeat(4, 1fr)" },
             gap: { xs: 1, sm: 2 },
           }}
         >
@@ -350,12 +317,7 @@ const Dashboard = ({ onLogout }) => {
         sx={{
           display: "grid",
           mb: 4,
-          gridTemplateColumns: {
-            xs: "1fr",
-            sm: "repeat(2, 1fr)",
-            md: "repeat(3, 1fr)",
-            lg: "repeat(4, 1fr)",
-          },
+          gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)", lg: "repeat(4, 1fr)" },
           gap: { xs: 1, sm: 2 },
         }}
       >
@@ -375,6 +337,7 @@ const Dashboard = ({ onLogout }) => {
       </Box>
     );
   };
+
   return (
     <Box sx={{ display: "flex" }}>
       {showNavbar && (
@@ -383,17 +346,10 @@ const Dashboard = ({ onLogout }) => {
       <Sidebar drawerWidth={drawerWidth} drawerContent={drawerContent} mobileOpen={mobileOpen} onClose={handleDrawerToggle} />
       <Box
         component="main"
-        sx={{
-          flexGrow: 1,
-          p: { xs: 2, sm: 3 },
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          mt: { xs: showNavbar ? 16 : 2, sm: showNavbar ? 8 : 2, md: showNavbar ? 8 : 2 },
-        }}
+        sx={{ flexGrow: 1, p: { xs: 2, sm: 3 }, width: { sm: `calc(100% - ${drawerWidth}px)` }, mt: { xs: showNavbar ? 16 : 2, sm: showNavbar ? 8 : 2, md: showNavbar ? 8 : 2 } }}
       >
         {renderContent()}
-        {alert && (
-          <AlertComponent severity={alert.severity} message={alert.message} onClose={() => setAlert(null)} />
-        )}
+        {alert && <AlertComponent severity={alert.severity} message={alert.message} onClose={() => setAlert(null)} />}
       </Box>
       <Dialog
         open={openDialog}
