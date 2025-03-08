@@ -1,11 +1,11 @@
 import productService from "../services/productService.js";
-import productValidator from "../validators/productValidator.js";
+import { productValidator, updateProductValidator } from "../validators/productValidator.js";
 import { fileURLToPath } from "url";
 import path from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const assetsBaseDir = path.join(__dirname, ".."); // Moves one level up to 'backend'
+const assetsBaseDir = path.join(__dirname, "..");
 
 export const getProducts = async (req, res) => {
   try {
@@ -19,17 +19,12 @@ export const getProducts = async (req, res) => {
 export const addProduct = async (req, res) => {
   try {
     let productData = req.file ? req.body : req.body;
-    const { error, value } = productValidator.validate(productData, {
-      allowUnknown: true,
-    });
-    if (error) {
-      return res.status(400).json({ error: error.details[0].message });
-    }
+    const { error, value } = productValidator.validate(productData, { allowUnknown: true });
+    if (error) return res.status(400).json({ error: error.details[0].message });
 
     const userId = req.user.id;
     productData = { ...value, userId };
 
-    // If an image is uploaded, add it to productData
     if (req.file) {
       productData.image = {
         buffer: req.file.buffer,
@@ -55,21 +50,10 @@ export const updateProduct = async (req, res) => {
         mimetype: req.file.mimetype,
       };
     }
-    const { error, value } = productValidator.validate(productData, {
-      allowUnknown: true,
-    });
-    if (error) {
-      return res.status(400).json({ error: error.details[0].message });
-    }
-    const updatedProduct = await productService.updateProduct(
-      req.params.id,
-      value,
-      assetsBaseDir
-    );
-    res.json({
-      message: "Product updated successfully",
-      product: updatedProduct,
-    });
+    const { error, value } = updateProductValidator.validate(productData, { allowUnknown: true });
+    if (error) return res.status(400).json({ error: error.details[0].message });
+    const updatedProduct = await productService.updateProduct(req.params.id, value, assetsBaseDir);
+    res.json({ message: "Product updated successfully", product: updatedProduct });
   } catch (error) {
     res.status(500).json({ error: error.message || "Error updating product" });
   }

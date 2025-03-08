@@ -177,8 +177,19 @@ const Dashboard = ({ onLogout }) => {
     }
   };
 
-  const handlePlaceOrder = (product) => {
-    console.log("Placing order for:", product);
+  const handlePlaceOrder = (updatedProduct) => {
+    setFilteredProducts((prevProducts) =>
+      prevProducts.map((p) =>
+        p.id === updatedProduct.id ? updatedProduct : p
+      )
+    );
+    if (viewMode === "edit") {
+      setMyProducts((prevProducts) =>
+        prevProducts.map((p) =>
+          p.id === updatedProduct.id ? updatedProduct : p
+        )
+      );
+    }
   };
 
   const drawerContent = (
@@ -281,7 +292,7 @@ const Dashboard = ({ onLogout }) => {
           <ProductCard
             key={prod.id}
             product={prod}
-            onPlaceOrder={() => handlePlaceOrder(prod)}
+            onPlaceOrder={handlePlaceOrder} // Pass updated handler
             isStore={viewMode === "store"}
             onEdit={() => openEditDialog(prod)}
             onDelete={() => handleDeleteProduct(prod)}

@@ -14,7 +14,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Counter from "../ui/Counter";
 import TooltipComponent from "../ui/Tooltip";
-import { createOrder } from "../../api/OrdersApi";
+import { createOrder } from "../../api/OrdersApi"; 
+import { updateProduct } from "../../api/ProductsApi";
 
 const ProductCard = ({
   product,
@@ -23,7 +24,7 @@ const ProductCard = ({
   onPlaceOrder,
   isEditable,
   isStore,
-  user, // Added as prop
+  user,
 }) => {
   const backendUrl = import.meta.env.VITE_BACKEND_DOMAIN;
 
@@ -45,17 +46,22 @@ const ProductCard = ({
       arrivalDate.setDate(orderDate.getDate() + 3);
 
       const orderData = {
-        userId: user.id, 
+        userId: user.id,
         productId: product.id,
         quantity: quantityToOrder,
-        orderDate: orderDate.toISOString().split("T")[0], 
+        orderDate: orderDate.toISOString().split("T")[0],
         arrivalDate: arrivalDate.toISOString().split("T")[0],
       };
+
       try {
         await createOrder(orderData);
-        onPlaceOrder(orderData);
+        const updatedQuantity = product.quantity - quantityToOrder;
+        const updatedProduct = { ...product, quantity: updatedQuantity };
+        await updateProduct(product.id, { quantity: updatedQuantity });
+        onPlaceOrder(updatedProduct);
+        setQuantityToOrder(0);
       } catch (error) {
-        console.error("Failed to place order:", error);
+        console.error("Failed to place order or update product:", error);
       }
     }
   };

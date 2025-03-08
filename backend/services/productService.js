@@ -2,13 +2,6 @@ import base from '../db_config/airtable.js';
 import fs from 'fs';
 import path from 'path';
 
-const validateProductData = (productData) => {
-  const { name, description, price, quantity } = productData;
-  if (!name || !description) throw new Error("Name and description are mandatory fields.");
-  if (price === undefined || price < 0) throw new Error("Price must be a positive number.");
-  if (quantity === undefined || quantity < 0) throw new Error("Quantity must be a positive number.");
-};
-
 const storeImageLocally = async (image, assetsBaseDir) => {
   const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
   if (!validTypes.includes(image.mimetype)) throw new Error("Invalid image format. Only .jpeg, .jpg, and .png are allowed.");
@@ -31,8 +24,6 @@ const getProducts = async () => {
 };
 
 const addProduct = async (productData, assetsBaseDir) => {
-  validateProductData(productData);
-
   if (productData.image) {
     try {
       const localImagePath = await storeImageLocally(productData.image, assetsBaseDir);
@@ -48,8 +39,6 @@ const addProduct = async (productData, assetsBaseDir) => {
 };
 
 const updateProduct = async (id, updatedFields, assetsBaseDir) => {
-  validateProductData(updatedFields);
-
   if (updatedFields.image) {
     try {
       const localImagePath = await storeImageLocally(updatedFields.image, assetsBaseDir);
