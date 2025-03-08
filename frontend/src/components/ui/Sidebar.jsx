@@ -6,7 +6,6 @@ const drawerWidth = "13rem";
 const Sidebar = ({ drawerContent, mobileOpen, onClose }) => {
   return (
     <>
-      {/* Temporary drawer for mobile */}
       <Drawer
         variant="temporary"
         open={mobileOpen}
@@ -16,18 +15,18 @@ const Sidebar = ({ drawerContent, mobileOpen, onClose }) => {
           display: { xs: "block", sm: "none" },
           "& .MuiDrawer-paper": {
             boxSizing: "border-box",
-            width: drawerWidth,
+            width: { xs: "80vw", sm: drawerWidth },
+            maxWidth: drawerWidth,
             backgroundColor: "#2D2D2D",
             color: "#FFFFFF",
             borderRadius: "1rem",
             margin: "0.5rem",
+            height: "calc(100vh - 1rem)",
           },
         }}
       >
         {drawerContent}
       </Drawer>
-
-      {/* Permanent drawer for larger screens */}
       <Box
         sx={{
           display: { xs: "none", sm: "block" },
@@ -46,7 +45,7 @@ const Sidebar = ({ drawerContent, mobileOpen, onClose }) => {
               borderRadius: "1rem",
               margin: "0.5rem",
               height: "calc(100vh - 4vh - 1rem)",
-              marginTop: "4vh", 
+              marginTop: "4vh",
             },
           }}
           open

@@ -53,7 +53,7 @@ const ProductCard = ({ product, onEdit, onDelete, onPlaceOrder, isEditable, isSt
   return (
     <MuiCard
       sx={{
-        maxHeight: "28rem",
+        maxHeight: "36rem",
         display: "flex",
         flexDirection: "column",
         backgroundColor: "#2A2A2A",
