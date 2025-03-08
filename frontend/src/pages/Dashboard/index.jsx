@@ -94,7 +94,12 @@ const Dashboard = ({ onLogout }) => {
     try {
       setLoading(true);
       const orders = await getOrders(user.id);
-      setFilteredProducts(orders);
+      const products = await getProducts();
+      const enrichedOrders = orders.map((order) => ({
+        ...order,
+        product: products.find((p) => p.id === order.productId)
+      }));
+      setFilteredProducts(enrichedOrders);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -107,7 +112,7 @@ const Dashboard = ({ onLogout }) => {
     setSearchQuery(query);
     if (viewMode === "orders") {
       const filtered = filteredProducts.filter((order) =>
-        order.productId.toLowerCase().includes(query)
+        order.product?.name.toLowerCase().includes(query)
       );
       setFilteredProducts(filtered);
     } else {

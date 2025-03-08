@@ -1,35 +1,11 @@
-import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Typography,
-  Card as MuiCard,
-  CardMedia,
-  CardContent,
-  Chip,
-} from "@mui/material";
-import { getProducts } from "../../api/ProductsApi";
+import React, { useState } from "react";
+import { Box, Typography, Card as MuiCard, CardMedia, CardContent, CardActions, Chip, Button } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { deleteOrder } from "../../api/OrdersApi";
 
 const OrderCard = ({ order }) => {
   const backendUrl = import.meta.env.VITE_BACKEND_DOMAIN;
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchProductDetails = async () => {
-      try {
-        setLoading(true);
-        const products = await getProducts();
-        const foundProduct = products.find((p) => p.id === order.productId);
-        setProduct(foundProduct);
-      } catch (error) {
-        console.error("Error fetching product details:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProductDetails();
-  }, [order.productId]);
-
+  const [isDeleting, setIsDeleting] = useState(false);
   const gradientStyle = {
     backgroundImage: "linear-gradient(45deg, #CC5500, #FFA333)",
     backgroundClip: "text",
@@ -41,19 +17,20 @@ const OrderCard = ({ order }) => {
     MozBackgroundClip: "text",
     MozTextFillColor: "transparent",
   };
-
+  const product = order.product;
   const imageSrc = product?.imageUrl?.startsWith("/assets")
     ? `${backendUrl}${product.imageUrl}`
     : "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
-
-  if (loading) {
-    return (
-      <Box sx={{ p: 2, color: "#fff" }}>
-        <Typography>Loading...</Typography>
-      </Box>
-    );
-  }
-
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteOrder(order.id);
+    } catch (error) {
+      console.error("Error deleting order:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
   return (
     <MuiCard
       sx={{
@@ -119,15 +96,7 @@ const OrderCard = ({ order }) => {
         >
           {product?.description || "No description available"}
         </Typography>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 1,
-            pl: 0.5,
-            pr: 0.5,
-          }}
-        >
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, pl: 0.5, pr: 0.5 }}>
           <Chip
             label={`Quantity Ordered: ${order.quantity}`}
             size="small"
@@ -138,22 +107,28 @@ const OrderCard = ({ order }) => {
               height: "22px",
             }}
           />
-          <Typography
-            variant="body2"
-            color="#FF8C00"
-            sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem" } }}
-          >
+          <Typography variant="body2" color="#FF8C00" sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem" } }}>
             Order Date: {new Date(order.orderDate).toLocaleDateString()}
           </Typography>
-          <Typography
-            variant="body2"
-            color="#FF8C00"
-            sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem" } }}
-          >
+          <Typography variant="body2" color="#FF8C00" sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem" } }}>
             Delivery Date: {order.arrivalDate ? new Date(order.arrivalDate).toLocaleDateString() : "Pending"}
           </Typography>
         </Box>
       </CardContent>
+      <CardActions sx={{ p: { xs: 1, sm: 1.5 }, justifyContent: "center" }}>
+        <Button
+          size="small"
+          onClick={handleDelete}
+          disabled={isDeleting}
+          startIcon={<DeleteIcon />}
+          sx={{
+            color: "#FF5555",
+            "&:hover": { backgroundColor: "rgba(255, 85, 85, 0.1)" },
+          }}
+        >
+          {isDeleting ? "Deleting..." : "Delete"}
+        </Button>
+      </CardActions>
     </MuiCard>
   );
 };
