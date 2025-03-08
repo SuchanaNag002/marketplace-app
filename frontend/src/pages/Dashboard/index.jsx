@@ -179,15 +179,11 @@ const Dashboard = ({ onLogout }) => {
 
   const handlePlaceOrder = (updatedProduct) => {
     setFilteredProducts((prevProducts) =>
-      prevProducts.map((p) =>
-        p.id === updatedProduct.id ? updatedProduct : p
-      )
+      prevProducts.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
     );
     if (viewMode === "edit") {
       setMyProducts((prevProducts) =>
-        prevProducts.map((p) =>
-          p.id === updatedProduct.id ? updatedProduct : p
-        )
+        prevProducts.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
       );
     }
   };
@@ -292,7 +288,7 @@ const Dashboard = ({ onLogout }) => {
           <ProductCard
             key={prod.id}
             product={prod}
-            onPlaceOrder={handlePlaceOrder} // Pass updated handler
+            onPlaceOrder={handlePlaceOrder}
             isStore={viewMode === "store"}
             onEdit={() => openEditDialog(prod)}
             onDelete={() => handleDeleteProduct(prod)}
