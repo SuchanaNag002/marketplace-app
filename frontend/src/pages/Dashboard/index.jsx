@@ -18,12 +18,7 @@ import Navbar from "../../components/ui/Navbar";
 import Sidebar from "../../components/ui/Sidebar";
 import Dialog from "../../components/ui/Dialog";
 import { UserContext } from "../../context/userContext";
-import {
-  getProducts,
-  createProduct,
-  updateProduct,
-  deleteProduct,
-} from "../../api/ProductsApi";
+import { ProductContext } from "../../context/productContext";
 import { getOrders } from "../../api/OrdersApi";
 import ProductCard from "../../components/ProductComponent/ProductCard";
 import OrderCard from "../../components/OrderComponent/OrderCard";
@@ -53,6 +48,7 @@ const selectedStyle = {
 
 const Dashboard = ({ onLogout }) => {
   const { user } = useContext(UserContext);
+  const { products, loading, fetchProducts, addProduct, editProduct, removeProduct } = useContext(ProductContext);
   const location = useLocation();
   const isMobile = useMediaQuery("(max-width:600px)");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -60,9 +56,15 @@ const Dashboard = ({ onLogout }) => {
   const [myProducts, setMyProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
-  const [editProduct, setEditProduct] = useState(null);
+  const [editProductData, setEditProductData] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      await fetchProducts(); 
+    };
+    loadProducts();
+  }, []); 
 
   useEffect(() => {
     if (location.pathname === "/store") {
@@ -75,49 +77,29 @@ const Dashboard = ({ onLogout }) => {
       setViewMode("orders");
       fetchMyOrders();
     }
-  }, [location.pathname]);
+  }, [location.pathname, products]); 
 
-  const fetchMyProducts = async () => {
-    try {
-      setLoading(true);
-      const allProducts = await getProducts();
-      const items = allProducts.filter((p) => p.userId === user.id);
-      setMyProducts(items);
-      setFilteredProducts(items);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      setLoading(false);
-    }
+  const fetchMyProducts = () => {
+    const items = products.filter((p) => p.userId === user.id);
+    setMyProducts(items);
+    setFilteredProducts(items);
   };
 
-  const fetchStoreProducts = async () => {
-    try {
-      setLoading(true);
-      const allProducts = await getProducts();
-      const items = allProducts.filter((p) => p.userId !== user.id);
-      setFilteredProducts(items);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching store products:", error);
-      setLoading(false);
-    }
+  const fetchStoreProducts = () => {
+    const items = products.filter((p) => p.userId !== user.id);
+    setFilteredProducts(items);
   };
 
   const fetchMyOrders = async () => {
     try {
-      setLoading(true);
       const orders = await getOrders(user.id);
-      const products = await getProducts();
       const enrichedOrders = orders.map((order) => ({
         ...order,
         product: products.find((p) => p.id === order.productId),
       }));
       setFilteredProducts(enrichedOrders);
-      setLoading(false);
     } catch (error) {
       console.error("Error fetching orders:", error);
-      setLoading(false);
     }
   };
 
@@ -144,13 +126,13 @@ const Dashboard = ({ onLogout }) => {
   };
 
   const handleAddProductClick = () => {
-    setEditProduct(null);
+    setEditProductData(null);
     setOpenDialog(true);
     if (isMobile) handleDrawerToggle();
   };
 
   const openEditDialog = (product) => {
-    setEditProduct(product);
+    setEditProductData(product);
     setOpenDialog(true);
     if (isMobile) handleDrawerToggle();
   };
@@ -159,17 +141,17 @@ const Dashboard = ({ onLogout }) => {
     try {
       let productData;
       if (data instanceof FormData) {
-        if (!editProduct) data.append("userId", user.id);
+        if (!editProductData) data.append("userId", user.id);
         productData = data;
       } else {
         productData = { ...data, userId: user.id };
       }
-      if (editProduct) {
-        await updateProduct(editProduct.id, productData);
+      if (editProductData) {
+        await editProduct(editProductData.id, productData);
       } else {
-        await createProduct(productData);
+        await addProduct(productData);
       }
-      setEditProduct(null);
+      setEditProductData(null);
       setOpenDialog(false);
       if (viewMode === "edit") {
         fetchMyProducts();
@@ -180,7 +162,7 @@ const Dashboard = ({ onLogout }) => {
       console.error("Error in Dashboard:", error);
       throw new Error(
         error.response?.data?.error ||
-          (editProduct
+          (editProductData
             ? "Could not update product!"
             : "Could not add product to store!")
       );
@@ -189,10 +171,8 @@ const Dashboard = ({ onLogout }) => {
 
   const handleDeleteProduct = async (product) => {
     try {
-      await deleteProduct(product.id);
-      const updatedProducts = myProducts.filter((p) => p.id !== product.id);
-      setMyProducts(updatedProducts);
-      setFilteredProducts(updatedProducts);
+      await removeProduct(product.id);
+      fetchMyProducts();
     } catch (error) {
       console.error("Error deleting product:", error);
     }
@@ -247,7 +227,7 @@ const Dashboard = ({ onLogout }) => {
             onClick={handleAddProductClick}
             sx={{
               justifyContent: "center",
-              ...(openDialog && !editProduct && selectedStyle),
+              ...(openDialog && !editProductData && selectedStyle),
               "&:hover": selectedStyle,
             }}
           >
@@ -449,13 +429,13 @@ const Dashboard = ({ onLogout }) => {
         open={openDialog}
         onClose={() => {
           setOpenDialog(false);
-          setEditProduct(null);
+          setEditProductData(null);
         }}
-        title={editProduct ? "Edit Product" : "Add New Product"}
+        title={editProductData ? "Edit Product" : "Add New Product"}
       >
         <ProductForm
           onSubmit={handleSubmitProduct}
-          product={editProduct || {}}
+          product={editProductData || {}}
         />
       </Dialog>
     </Box>
