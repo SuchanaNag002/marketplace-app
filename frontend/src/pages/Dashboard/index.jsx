@@ -286,6 +286,7 @@ const Dashboard = ({ onLogout }) => {
             onEdit={() => openEditDialog(prod)}
             onDelete={() => handleDeleteProduct(prod)}
             isEditable={viewMode === "edit"}
+            user={user}
           />
         ))}
       </Box>

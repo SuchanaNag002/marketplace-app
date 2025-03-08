@@ -18,7 +18,7 @@ export const addOrderByProductIdAndUserId = async (req, res) => {
     }
     const order = await orderService.addOrderByProductIdAndUserId(
       value.productId,
-      req.user.id,
+      value.userId,
       {
         quantity: value.quantity,
         orderDate: value.orderDate,
