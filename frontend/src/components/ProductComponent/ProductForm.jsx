@@ -3,8 +3,7 @@ import Input from "../ui/input";
 import Button from "../ui/button";
 import { CheckCircle } from "@mui/icons-material";
 
-const ProductForm = ({ onSubmit, product = {} }) => {
-  // Pre-fill form fields when editing
+const ProductForm = ({ onSubmit, product = {}, setAlert }) => {
   const [name, setName] = useState(product.name || "");
   const [description, setDescription] = useState(product.description || "");
   const [price, setPrice] = useState(product.price || 0);
@@ -14,7 +13,6 @@ const ProductForm = ({ onSubmit, product = {} }) => {
   const [isFileSelected, setIsFileSelected] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // When the product prop changes (i.e. switching between add and edit), update state.
   useEffect(() => {
     setName(product.name || "");
     setDescription(product.description || "");
@@ -43,13 +41,20 @@ const ProductForm = ({ onSubmit, product = {} }) => {
         formData.append("price", productData.price);
         formData.append("quantity", productData.quantity);
         formData.append("image", image);
-
         await onSubmit(formData);
       } else {
         await onSubmit(productData);
       }
+      setAlert({
+        severity: "success",
+        message: product.id ? "Product updated successfully" : "Product added successfully",
+      });
     } catch (err) {
       setError(err.message || "Could not add product to store!");
+      setAlert({
+        severity: "error",
+        message: err.message || "Could not add product to store!",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -66,6 +71,10 @@ const ProductForm = ({ onSubmit, product = {} }) => {
         setError("Please select a valid image file (jpg, jpeg, or png).");
         setImage(null);
         setIsFileSelected(false);
+        setAlert({
+          severity: "error",
+          message: "Please select a valid image file (jpg, jpeg, or png).",
+        });
       }
     }
   };
@@ -98,7 +107,6 @@ const ProductForm = ({ onSubmit, product = {} }) => {
         value={quantity}
         onChange={(e) => setQuantity(e.target.value)}
       />
-
       <div className="mb-4 w-full flex items-center justify-between">
         <label className="block text-left mb-2">Image</label>
         <div className="flex items-center space-x-2">
@@ -126,7 +134,6 @@ const ProductForm = ({ onSubmit, product = {} }) => {
           </label>
         </div>
       </div>
-
       <Button
         type="submit"
         text={isSubmitting ? "Submitting..." : "Submit"}

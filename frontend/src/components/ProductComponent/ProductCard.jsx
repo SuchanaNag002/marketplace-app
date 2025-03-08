@@ -8,7 +8,7 @@ import TooltipComponent from "../ui/Tooltip";
 import { createOrder } from "../../api/OrdersApi";
 import { updateProduct } from "../../api/ProductsApi";
 
-const ProductCard = ({ product, onEdit, onDelete, onPlaceOrder, isEditable, isStore, user }) => {
+const ProductCard = ({ product, onEdit, onDelete, onPlaceOrder, isEditable, isStore, user, setAlert }) => {
   const backendUrl = import.meta.env.VITE_BACKEND_DOMAIN;
   const imageSrc = product.imageUrl?.startsWith("/assets") ? `${backendUrl}${product.imageUrl}` : "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
   const [quantityToOrder, setQuantityToOrder] = useState(1);
@@ -41,8 +41,9 @@ const ProductCard = ({ product, onEdit, onDelete, onPlaceOrder, isEditable, isSt
         onPlaceOrder(updatedProduct);
         setQuantityToOrder(1);
         setCounterKey(prev => prev + 1);
+        setAlert({ severity: "success", message: "Order placed successfully" });
       } catch (error) {
-        console.error("Failed to place order or update product:", error);
+        setAlert({ severity: "error", message: "Failed to place order" });
       } finally {
         setIsOrdering(false);
       }
@@ -133,8 +134,14 @@ const ProductCard = ({ product, onEdit, onDelete, onPlaceOrder, isEditable, isSt
               size="small"
               onClick={async () => {
                 setIsDeleting(true);
-                await onDelete(product);
-                setIsDeleting(false);
+                try {
+                  await onDelete(product);
+                  setAlert({ severity: "success", message: "Product deleted successfully" });
+                } catch (error) {
+                  setAlert({ severity: "error", message: "Failed to delete product" });
+                } finally {
+                  setIsDeleting(false);
+                }
               }}
               disabled={isDeleting}
               startIcon={<DeleteIcon />}

@@ -520,6 +520,7 @@ const Dashboard = ({ onLogout }) => {
         <ProductForm
           onSubmit={handleSubmitProduct}
           product={editProductData || {}}
+          setAlert={setAlert}
         />
       </Dialog>
     </Box>
