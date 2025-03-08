@@ -7,7 +7,7 @@ const SECRET_KEY = process.env.JWT_SECRET || 'your_secret_key';
 // Register User
 const registerUser = async (userData) => {
   try {
-    const { name, email, password, role } = userData;
+    const { name, email, password, address } = userData;
     
     // Check if user already exists
     const existingUsers = await base('Users').select({
@@ -21,14 +21,14 @@ const registerUser = async (userData) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const records = await base('Users').create([
-      { fields: { name, email, password: hashedPassword, role: role || 'customer' } }
+      { fields: { name, email, password: hashedPassword, address: address || 'customer' } }
     ]);
 
     return { 
       id: records[0].id, 
       name: records[0].fields.name,
       email: records[0].fields.email,
-      role: records[0].fields.role
+      address: records[0].fields.address
     };
   } catch (error) {
     console.error('Register error:', error);
@@ -50,14 +50,14 @@ const loginUser = async (email, password) => {
     if (!isMatch) throw new Error('Invalid credentials');
 
     const token = jwt.sign(
-      { id: records[0].id, email: user.email, role: user.role },
+      { id: records[0].id, email: user.email, address: user.address },
       SECRET_KEY,
       { expiresIn: '72h' }
     );
 
     return {
       token,
-      user: { id: records[0].id, name: user.name, email: user.email, role: user.role }
+      user: { id: records[0].id, name: user.name, email: user.email, address: user.address }
     };
   } catch (error) {
     console.error('Login error:', error);

@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Alert, AlertTitle } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline"; 
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline"; 
-import WarningAmberIcon from "@mui/icons-material/WarningAmber"; 
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined"; 
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 const StyledAlert = styled(Alert)(({ theme, severity }) => ({
   position: "fixed",
@@ -24,18 +24,26 @@ const StyledAlert = styled(Alert)(({ theme, severity }) => ({
   transition: "all 0.3s ease-in-out",
   "& .MuiAlert-icon": {
     color: ({ severity }) => ({
-      success: "#90EE90",
-      error: "#FFB6C1",
-      warning: "#FFFF99",
-      info: "#ADD8E6",
+      success: "#90EE90 !important",
+      error: "#FFB6C1 !important",
+      warning: "#FFFF99 !important",
+      info: "#ADD8E6 !important",
     })[severity],
   },
   "& .MuiAlert-message": {
     color: ({ severity }) => ({
-      success: "#90EE90",
-      error: "#FFB6C1",
-      warning: "#FFFF99",
-      info: "#ADD8E6",
+      success: "#90EE90 !important",
+      error: "#FFB6C1 !important",
+      warning: "#FFFF99 !important",
+      info: "#ADD8E6 !important",
+    })[severity],
+  },
+  "& .MuiAlertTitle-root": {
+    color: ({ severity }) => ({
+      success: "#90EE90 !important",
+      error: "#FFB6C1 !important",
+      warning: "#FFFF99 !important",
+      info: "#ADD8E6 !important",
     })[severity],
   },
   backgroundColor: ({ severity }) => ({
@@ -71,6 +79,16 @@ const AlertComponent = ({ severity, message, title, onClose, ...props }) => {
         return null;
     }
   };
+
+  // Auto-close the alert after 4 seconds
+  useEffect(() => {
+    if (onClose) {
+      const timer = setTimeout(() => {
+        onClose();
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [onClose]);
 
   return (
     <StyledAlert

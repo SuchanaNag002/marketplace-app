@@ -12,7 +12,9 @@ const userValidator = Joi.object({
     'string.empty': 'Password is required',
     'string.min': 'Password must be at least 6 characters'
   }),
-  role: Joi.string().optional()
+  address: Joi.string().required().messages({
+    'string.empty': 'Address is required'
+  })
 });
 
 export default userValidator;
