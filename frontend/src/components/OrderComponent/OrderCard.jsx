@@ -13,7 +13,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { deleteOrder } from "../../api/OrdersApi";
 import { updateProduct } from "../../api/ProductsApi";
 
-const OrderCard = ({ order, products }) => {
+const OrderCard = ({ order }) => {
   const backendUrl = import.meta.env.VITE_BACKEND_DOMAIN;
   const [isDeleting, setIsDeleting] = useState(false);
   const gradientStyle = {
@@ -27,17 +27,20 @@ const OrderCard = ({ order, products }) => {
     MozBackgroundClip: "text",
     MozTextFillColor: "transparent",
   };
-  const imageSrc = order.imageUrl?.startsWith("/assets")
-    ? `${backendUrl}${order.imageUrl}`
+
+  // Use the product details from order.product, with fallbacks
+  const product = order.product || {};
+  const imageSrc = product.imageUrl?.startsWith("/assets")
+    ? `${backendUrl}${product.imageUrl}`
     : "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3";
+
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
       await deleteOrder(order.id);
-      const product = products.find((p) => p.id === order.productId);
-      if (product) {
+      if (product.id) {
         const updatedQuantity = (product.quantity || 0) + order.quantity;
-        await updateProduct(order.productId, { quantity: updatedQuantity });
+        await updateProduct(product.id, { quantity: updatedQuantity });
       }
     } catch (error) {
       console.error("Error deleting order:", error);
@@ -45,6 +48,7 @@ const OrderCard = ({ order, products }) => {
       setIsDeleting(false);
     }
   };
+
   return (
     <MuiCard
       sx={{
@@ -66,7 +70,7 @@ const OrderCard = ({ order, products }) => {
         component="img"
         height="160"
         image={imageSrc}
-        alt="Product"
+        alt={product.name || "Product"}
         sx={{
           objectFit: "cover",
           borderBottom: "2px solid #FF8C00",
@@ -91,7 +95,7 @@ const OrderCard = ({ order, products }) => {
             pl: 0.5,
           }}
         >
-          {order.productName || "Unknown Product"}
+          {product.name || "Unknown Product"}
         </Typography>
         <Typography
           variant="body2"
@@ -108,7 +112,7 @@ const OrderCard = ({ order, products }) => {
             pl: 0.5,
           }}
         >
-          {order.productDescription || "No description available"}
+          {product.description || "No description available"}
         </Typography>
         <Box
           sx={{

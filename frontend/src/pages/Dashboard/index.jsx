@@ -61,10 +61,10 @@ const Dashboard = ({ onLogout }) => {
 
   useEffect(() => {
     const loadProducts = async () => {
-      await fetchProducts(); 
+      await fetchProducts();
     };
     loadProducts();
-  }, []); 
+  }, []);
 
   useEffect(() => {
     if (location.pathname === "/store") {
@@ -77,7 +77,7 @@ const Dashboard = ({ onLogout }) => {
       setViewMode("orders");
       fetchMyOrders();
     }
-  }, [location.pathname, products]); 
+  }, [location.pathname, products]);
 
   const fetchMyProducts = () => {
     const items = products.filter((p) => p.userId === user.id);
@@ -367,7 +367,7 @@ const Dashboard = ({ onLogout }) => {
           }}
         >
           {filteredProducts.map((order) => (
-            <OrderCard key={order.id} order={order} products={products} />
+            <OrderCard key={order.id} order={order} />
           ))}
         </Box>
       );
