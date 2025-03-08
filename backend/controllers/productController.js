@@ -18,22 +18,19 @@ export const getProducts = async (req, res) => {
 
 export const addProduct = async (req, res) => {
   try {
-    let productData = req.file ? req.body : req.body;
+    const productData = { ...req.body, image: req.file };
     const { error, value } = productValidator.validate(productData, { allowUnknown: true });
     if (error) return res.status(400).json({ error: error.details[0].message });
-
     const userId = req.user.id;
-    productData = { ...value, userId };
-
+    let validatedData = { ...value, userId };
     if (req.file) {
-      productData.image = {
+      validatedData.image = {
         buffer: req.file.buffer,
         originalname: req.file.originalname,
         mimetype: req.file.mimetype,
       };
     }
-
-    const product = await productService.addProduct(productData, assetsBaseDir);
+    const product = await productService.addProduct(validatedData, assetsBaseDir);
     res.status(201).json(product);
   } catch (error) {
     res.status(500).json({ error: error.message || "Error adding product" });
