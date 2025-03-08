@@ -2,7 +2,6 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/ui/input";
 import Button from "../../components/ui/button";
-import Dropdown from "../../components/ui/Dropdown";
 import { UserContext } from "../../context/userContext";
 import AlertComponent from "../../components/ui/Alert";
 
