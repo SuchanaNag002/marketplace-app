@@ -13,18 +13,27 @@ const ProductForm = ({ onSubmit, product = {}, setAlert }) => {
   const [isFileSelected, setIsFileSelected] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Track whether the form has been submitted to avoid clearing error
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+
   useEffect(() => {
-    setName(product.name || "");
-    setDescription(product.description || "");
-    setPrice(product.price || 0);
-    setQuantity(product.quantity || 0);
-    setError("");
-  }, [product]);
+    // Only reset the form fields and error when product changes AND the form hasn't been submitted
+    if (!hasSubmitted) {
+      setName(product.name || "");
+      setDescription(product.description || "");
+      setPrice(product.price || 0);
+      setQuantity(product.quantity || 0);
+      setError("");
+      setImage(null);
+      setIsFileSelected(false);
+    }
+  }, [product, hasSubmitted]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setError(""); 
     setIsSubmitting(true);
+    setHasSubmitted(true); 
 
     try {
       const productData = {
@@ -49,11 +58,21 @@ const ProductForm = ({ onSubmit, product = {}, setAlert }) => {
         severity: "success",
         message: product.id ? "Product updated successfully" : "Product added successfully",
       });
+      setName("");
+      setDescription("");
+      setPrice(0);
+      setQuantity(0);
+      setImage(null);
+      setIsFileSelected(false);
+      setError("");
+      setHasSubmitted(false); 
     } catch (err) {
-      setError(err.message || "Could not add product to store!");
+      console.log(err);
+      const errorMessage = err.response?.data?.error || "Could not add product to store!";
+      setError(errorMessage);
       setAlert({
         severity: "error",
-        message: err.message || "Could not add product to store!",
+        message: errorMessage,
       });
     } finally {
       setIsSubmitting(false);
@@ -67,13 +86,15 @@ const ProductForm = ({ onSubmit, product = {}, setAlert }) => {
       if (allowedTypes.includes(selectedFile.type)) {
         setImage(selectedFile);
         setIsFileSelected(true);
+        setError(""); // Clear any previous error on valid image selection
       } else {
-        setError("Please select a valid image file (jpg, jpeg, or png).");
+        const imageError = "Please select a valid image file (jpg, jpeg, or png).";
+        setError(imageError);
         setImage(null);
         setIsFileSelected(false);
         setAlert({
           severity: "error",
-          message: "Please select a valid image file (jpg, jpeg, or png).",
+          message: imageError,
         });
       }
     }
