@@ -58,6 +58,7 @@ const Dashboard = ({ onLogout }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [editProductData, setEditProductData] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isOrdersLoading, setIsOrdersLoading] = useState(false);
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -67,6 +68,7 @@ const Dashboard = ({ onLogout }) => {
   }, []);
 
   useEffect(() => {
+    if (!products.length || loading) return; // Wait for products to load
     if (location.pathname === "/store") {
       setViewMode("store");
       fetchStoreProducts();
@@ -77,7 +79,7 @@ const Dashboard = ({ onLogout }) => {
       setViewMode("orders");
       fetchMyOrders();
     }
-  }, [location.pathname, products]);
+  }, [location.pathname, products, loading]);
 
   const fetchMyProducts = () => {
     const items = products.filter((p) => p.userId === user.id);
@@ -92,6 +94,7 @@ const Dashboard = ({ onLogout }) => {
 
   const fetchMyOrders = async () => {
     try {
+      setIsOrdersLoading(true);
       const orders = await getOrders(user.id);
       const enrichedOrders = orders.map((order) => ({
         ...order,
@@ -100,6 +103,8 @@ const Dashboard = ({ onLogout }) => {
       setFilteredProducts(enrichedOrders);
     } catch (error) {
       console.error("Error fetching orders:", error);
+    } finally {
+      setIsOrdersLoading(false);
     }
   };
 
@@ -189,6 +194,12 @@ const Dashboard = ({ onLogout }) => {
         )
       );
     }
+  };
+
+  const handleDeleteOrder = (orderId) => {
+    setFilteredProducts((prevProducts) =>
+      prevProducts.filter((order) => order.id !== orderId)
+    );
   };
 
   const drawerContent = (
@@ -345,7 +356,7 @@ const Dashboard = ({ onLogout }) => {
   );
 
   const renderContent = () => {
-    if (loading) {
+    if (loading || isOrdersLoading) {
       return <LoadingState />;
     }
     if (filteredProducts.length === 0) {
@@ -367,7 +378,7 @@ const Dashboard = ({ onLogout }) => {
           }}
         >
           {filteredProducts.map((order) => (
-            <OrderCard key={order.id} order={order} />
+            <OrderCard key={order.id} order={order} onDeleteOrder={handleDeleteOrder} />
           ))}
         </Box>
       );

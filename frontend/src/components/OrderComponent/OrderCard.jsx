@@ -13,7 +13,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { deleteOrder } from "../../api/OrdersApi";
 import { updateProduct } from "../../api/ProductsApi";
 
-const OrderCard = ({ order }) => {
+const OrderCard = ({ order, onDeleteOrder }) => {
   const backendUrl = import.meta.env.VITE_BACKEND_DOMAIN;
   const [isDeleting, setIsDeleting] = useState(false);
   const gradientStyle = {
@@ -28,7 +28,6 @@ const OrderCard = ({ order }) => {
     MozTextFillColor: "transparent",
   };
 
-  // Use the product details from order.product, with fallbacks
   const product = order.product || {};
   const imageSrc = product.imageUrl?.startsWith("/assets")
     ? `${backendUrl}${product.imageUrl}`
@@ -42,6 +41,7 @@ const OrderCard = ({ order }) => {
         const updatedQuantity = (product.quantity || 0) + order.quantity;
         await updateProduct(product.id, { quantity: updatedQuantity });
       }
+      onDeleteOrder(order.id); // Notify Dashboard to remove the order from state
     } catch (error) {
       console.error("Error deleting order:", error);
     } finally {
