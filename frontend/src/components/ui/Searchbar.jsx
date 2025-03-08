@@ -13,7 +13,7 @@ const SearchBar = ({ value, onChange }) => {
       }}
     >
       <TextField
-        value={value}
+        value={value || ""} 
         onChange={onChange}
         placeholder="Search products..."
         variant="outlined"
@@ -22,7 +22,7 @@ const SearchBar = ({ value, onChange }) => {
           "& .MuiOutlinedInput-root": {
             borderRadius: "20px",
             backgroundColor: "#fff",
-            boxShadow: "0 0 10px rgba(255, 140, 0, 0.3)", // Orange blurred shadow
+            boxShadow: "0 0 10px rgba(255, 140, 0, 0.3)",
             "& fieldset": {
               borderColor: "transparent",
             },

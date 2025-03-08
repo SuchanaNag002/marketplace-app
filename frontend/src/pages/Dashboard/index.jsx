@@ -59,6 +59,27 @@ const Dashboard = ({ onLogout }) => {
   const [editProductData, setEditProductData] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isOrdersLoading, setIsOrdersLoading] = useState(false);
+  const [showNavbar, setShowNavbar] = useState(true); // State for navbar visibility
+
+  // Scroll handler for navbar visibility
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        // Scrolling down and past a threshold
+        setShowNavbar(false);
+      } else if (currentScrollY === 0) {
+        // At the top of the page
+        setShowNavbar(true);
+      }
+      lastScrollY = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -68,7 +89,7 @@ const Dashboard = ({ onLogout }) => {
   }, []);
 
   useEffect(() => {
-    if (!products.length || loading) return; // Wait for products to load
+    if (!products.length || loading) return;
     if (location.pathname === "/store") {
       setViewMode("store");
       fetchStoreProducts();
@@ -117,7 +138,7 @@ const Dashboard = ({ onLogout }) => {
       );
       setFilteredProducts(filtered);
     } else {
-      const filtered = myProducts.filter(
+      const filtered = (viewMode === "edit" ? myProducts : products.filter((p) => p.userId !== user.id)).filter(
         (product) =>
           product.name.toLowerCase().includes(query) ||
           product.description.toLowerCase().includes(query)
@@ -415,10 +436,13 @@ const Dashboard = ({ onLogout }) => {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Navbar
-        onSearchChange={handleSearchChange}
-        handleDrawerToggle={handleDrawerToggle}
-      />
+      {showNavbar && (
+        <Navbar
+          onSearchChange={handleSearchChange}
+          handleDrawerToggle={handleDrawerToggle}
+          searchQuery={searchQuery} 
+        />
+      )}
       <Sidebar
         drawerWidth={drawerWidth}
         drawerContent={drawerContent}
@@ -431,7 +455,7 @@ const Dashboard = ({ onLogout }) => {
           flexGrow: 1,
           p: { xs: 2, sm: 3 },
           width: { sm: `calc(100% - ${drawerWidth}px)` },
-          mt: { xs: 16, sm: 8, md: 8 },
+          mt: { xs: showNavbar ? 16 : 2, sm: showNavbar ? 8 : 2, md: showNavbar ? 8 : 2 },
         }}
       >
         {renderContent()}
