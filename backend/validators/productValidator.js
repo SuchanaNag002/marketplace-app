@@ -24,10 +24,6 @@ const productValidator = Joi.object({
   image: Joi.any().required().messages({
     'any.required': 'Image is required'
   }),
-  sellerId: Joi.string().required().messages({
-    'string.empty': 'Seller ID is required',
-    'any.required': 'Seller ID is required'
-  })
 });
 
 const updateProductValidator = Joi.object({
@@ -48,7 +44,6 @@ const updateProductValidator = Joi.object({
     'number.min': 'Quantity must be greater than 0'
   }),
   image: Joi.any().optional(),
-  sellerId: Joi.string().optional()
 });
 
 export { productValidator, updateProductValidator };
