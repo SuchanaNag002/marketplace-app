@@ -1,5 +1,8 @@
 import orderService from "../services/orderService.js";
-import orderValidator from "../validators/orderValidator.js";
+import {
+  orderValidator,
+  updateOrderValidator,
+} from "../validators/orderValidator.js";
 
 export const getOrdersByUserId = async (req, res) => {
   try {
@@ -33,7 +36,7 @@ export const addOrderByProductIdAndUserId = async (req, res) => {
 export const updateOrderByOrderId = async (req, res) => {
   try {
     const { id } = req.params;
-    const { error, value } = orderValidator.validate(req.body, {});
+    const { error, value } = updateOrderValidator.validate(req.body, {});
     if (error) {
       return res.status(400).json({ error: error.details[0].message });
     }

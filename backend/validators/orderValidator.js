@@ -18,4 +18,14 @@ const orderValidator = Joi.object({
   })
 });
 
-export default orderValidator;
+const updateOrderValidator = Joi.object({
+  quantity: Joi.number().min(1).optional().messages({
+    'number.base': 'Quantity must be a number',
+    'number.min': 'Quantity must be at least 1'
+  }),
+  status: Joi.string().valid('Pending', 'Delivered').optional().messages({
+    'any.only': 'Status must be either Pending or Delivered'
+  })
+});
+
+export { orderValidator, updateOrderValidator };

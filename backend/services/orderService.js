@@ -61,18 +61,17 @@ const fetchRequestedOrders = async (userId) => {
       })
       .all();
 
-    // Step 3: Map orders and include only required fields
+    // Step 3: Map orders and include the correct ID
     const orders = ordersRecords.map((record) => {
       const product = productRecords.find((p) =>
         record.fields.productId?.includes(p.id)
       );
-
       return {
+        id: record.id, 
         name: product?.fields?.name || "Unknown Product",
         url: product?.fields?.image?.[0]?.url || "No Image",
         status: record.fields.status,
         orderDate: record.fields.orderDate,
-        orderId: record.fields.id,
       };
     });
 

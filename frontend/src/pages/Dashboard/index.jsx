@@ -146,7 +146,7 @@ const Dashboard = ({ onLogout }) => {
 
   const fetchRequestedOrdersForUser = async () => {
     try {
-      const orders = await fetchRequestedOrders(); 
+      const orders = await fetchRequestedOrders(user.id);
       console.log(orders); 
       setFilteredProducts(orders); 
     } catch (error) {

@@ -6,6 +6,7 @@ import {
   CardMedia,
   CardContent,
   Button,
+  CardActions,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { deleteOrder, updateOrder } from "../../api/OrdersApi";
@@ -30,7 +31,6 @@ const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
     MozTextFillColor: "transparent",
   };
 
-  // Use the Airtable URL directly from the order object when isRequested is true
   const imageSrc = isRequested
     ? order.url
     : order.product?.image?.[0]?.thumbnails?.large?.url ||
@@ -45,11 +45,8 @@ const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
         await updateProduct(order.product.id, { quantity: updatedQuantity });
       }
       onDeleteOrder(order.id);
-      setAlert({
-        severity: "success",
-        message: "Order cancelled successfully",
-      });
-    } catch (error) {
+      setAlert({ severity: "success", message: "Order cancelled successfully" });
+    } catch {
       setAlert({ severity: "error", message: "Failed to cancel order" });
     } finally {
       setIsDeleting(false);
@@ -59,20 +56,16 @@ const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
   const handleStatusChange = async (e) => {
     const newStatus = e.target.value;
     try {
-      await updateOrder(order.id, { ...order, status: newStatus });
+      console.log(order.id)
+      await updateOrder(order.id, { status: newStatus });
       setStatus(newStatus);
-      setAlert({
-        severity: "success",
-        message: "Order status updated successfully",
-      });
-    } catch (error) {
+      setAlert({ severity: "success", message: "Order status updated successfully" });
+    } catch {
       setAlert({ severity: "error", message: "Failed to update status" });
     }
   };
 
-  const handleImageLoad = () => {
-    setImageLoaded(true);
-  };
+  const handleImageLoad = () => setImageLoaded(true);
 
   return (
     <MuiCard
@@ -157,15 +150,20 @@ const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
               sx={{
                 "& .MuiInputBase-root": {
                   fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                  color: "white",
                 },
                 "& .MuiFormLabel-root": {
                   fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                  color: "white",
+                },
+                "& .MuiSelect-select": {
+                  color: "white",
                 },
               }}
             />
             <Typography
               variant="body2"
-              color="#FF8C00"
+              color="white"
               sx={{
                 mt: 1,
                 fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.9rem" },
@@ -175,43 +173,21 @@ const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
             </Typography>
           </Box>
         ) : (
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 1,
-              pl: 0.5,
-              pr: 0.5,
-            }}
-          >
-            <Typography
-              variant="body2"
-              color="#FF8C00"
-              sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.9rem" } }}
-            >
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1, pl: 0.5, pr: 0.5 }}>
+            <Typography variant="body2" color="#FF8C00">
               Quantity Ordered: {order.quantity}
             </Typography>
-            <Typography
-              variant="body2"
-              color="#FF8C00"
-              sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.9rem" } }}
-            >
+            <Typography variant="body2" color="#FF8C00">
               Order Date: {new Date(order.orderDate).toLocaleDateString()}
             </Typography>
-            <Typography
-              variant="body2"
-              color="#FF8C00"
-              sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.9rem" } }}
-            >
+            <Typography variant="body2" color="white">
               Delivery Status: {order.status}
             </Typography>
           </Box>
         )}
       </CardContent>
       {!isRequested && (
-        <CardActions
-          sx={{ p: { xs: 1, sm: 1.5, md: 2 }, justifyContent: "center" }}
-        >
+        <CardActions sx={{ p: { xs: 1, sm: 1.5, md: 2 }, justifyContent: "center" }}>
           <Button
             size="small"
             onClick={handleDelete}
@@ -220,7 +196,6 @@ const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
             sx={{
               color: "#FF5555",
               "&:hover": { backgroundColor: "rgba(255, 85, 85, 0.1)" },
-              fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.9rem" },
             }}
           >
             {isDeleting ? "Cancelling..." : "Cancel"}
