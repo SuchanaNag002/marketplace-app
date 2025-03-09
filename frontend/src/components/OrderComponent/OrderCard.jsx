@@ -16,6 +16,7 @@ import Dropdown from "../ui/Dropdown";
 import { ProductContext } from "../../context/ProductContext";
 
 const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
+  console.log(order);
   const [isDeleting, setIsDeleting] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [status, setStatus] = useState(order.status || "Pending");
@@ -37,7 +38,7 @@ const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
   console.log("Extracted productId:", productId);
   console.log("Products array:", products);
   console.log("Found product:", product);
-  const productName = product ? product.name : "Unknown Product";
+  const productName = isRequested === true ? (order ? order.name : "Unknown Order") : (product ? product.name : "Unknown Product");
 
   const gradientStyle = {
     backgroundImage: "linear-gradient(45deg, #CC5500, #FFA333)",
