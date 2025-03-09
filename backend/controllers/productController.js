@@ -1,5 +1,6 @@
 import productService from "../services/productService.js";
 import { productValidator, updateProductValidator } from "../validators/productValidator.js";
+import cloudinary from "../cloudinary_config/cloudinary.js";
 
 export const getProducts = async (req, res) => {
   try {
@@ -12,13 +13,20 @@ export const getProducts = async (req, res) => {
 
 export const addProduct = async (req, res) => {
   try {
-    const productData = { ...req.body, image: req.file };
+    const productData = { ...req.body };
     const { error, value } = productValidator.validate(productData, { allowUnknown: true });
     if (error) return res.status(400).json({ error: error.details[0].message });
     const userId = req.user.id;
     let validatedData = { ...value, userId };
     if (req.file) {
-      validatedData.image = req.file.path;
+      const uploadResult = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream((err, result) => {
+          if (err) reject(err);
+          else resolve(result);
+        });
+        stream.end(req.file.buffer);
+      });
+      validatedData.image = uploadResult.secure_url;
     }
     const product = await productService.addProduct(validatedData);
     res.status(201).json(product);
@@ -31,7 +39,14 @@ export const updateProduct = async (req, res) => {
   try {
     let productData = { ...req.body };
     if (req.file) {
-      productData.image = req.file.path;
+      const uploadResult = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream((err, result) => {
+          if (err) reject(err);
+          else resolve(result);
+        });
+        stream.end(req.file.buffer);
+      });
+      productData.image = uploadResult.secure_url;
     }
     const { error, value } = updateProductValidator.validate(productData, { allowUnknown: true });
     if (error) return res.status(400).json({ error: error.details[0].message });

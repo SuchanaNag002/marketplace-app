@@ -8,14 +8,14 @@ const getProducts = async () => {
 const addProduct = async (productData) => {
   const { userId, ...rest } = productData;
   const records = await base("Products").create([
-    { fields: { ...rest, sellerId: [userId] } },
+    { fields: { ...rest, sellerId: [userId] } }
   ]);
   return { id: records[0].id, ...records[0].fields };
 };
 
 const updateProduct = async (id, updatedFields) => {
   const records = await base("Products").update([
-    { id, fields: updatedFields },
+    { id, fields: updatedFields }
   ]);
   return { id: records[0].id, ...records[0].fields };
 };
