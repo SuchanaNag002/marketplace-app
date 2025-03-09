@@ -13,7 +13,7 @@ export const getProducts = async (req, res) => {
 
 export const addProduct = async (req, res) => {
   try {
-    const productData = { ...req.body };
+    const productData = { ...req.body, image: req.file ? req.file.originalname : undefined };
     const { error, value } = productValidator.validate(productData, { allowUnknown: true });
     if (error) return res.status(400).json({ error: error.details[0].message });
     const userId = req.user.id;
@@ -26,7 +26,7 @@ export const addProduct = async (req, res) => {
         });
         stream.end(req.file.buffer);
       });
-      validatedData.image = uploadResult.secure_url;
+      validatedData.image = [{ url: uploadResult.secure_url, filename: req.file.originalname }];
     }
     const product = await productService.addProduct(validatedData);
     res.status(201).json(product);
@@ -46,7 +46,7 @@ export const updateProduct = async (req, res) => {
         });
         stream.end(req.file.buffer);
       });
-      productData.image = uploadResult.secure_url;
+      productData.image = [{ url: uploadResult.secure_url, filename: req.file.originalname }];
     }
     const { error, value } = updateProductValidator.validate(productData, { allowUnknown: true });
     if (error) return res.status(400).json({ error: error.details[0].message });
