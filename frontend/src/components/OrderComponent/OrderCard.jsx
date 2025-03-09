@@ -10,13 +10,15 @@ import {
   Button,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { deleteOrder } from "../../api/OrdersApi";
+import { deleteOrder, updateOrder } from "../../api/OrdersApi";
 import { updateProduct } from "../../api/ProductsApi";
 import LoadingState from "../ui/LoadingState";
+import Dropdown from "../ui/Dropdown";
 
-const OrderCard = ({ order, onDeleteOrder, setAlert }) => {
+const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [status, setStatus] = useState(order.status || "Pending");
   const gradientStyle = {
     backgroundImage: "linear-gradient(45deg, #CC5500, #FFA333)",
     backgroundClip: "text",
@@ -51,6 +53,20 @@ const OrderCard = ({ order, onDeleteOrder, setAlert }) => {
       setAlert({ severity: "error", message: "Failed to cancel order" });
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleStatusChange = async (e) => {
+    const newStatus = e.target.value;
+    try {
+      await updateOrder(order.id, { ...order, status: newStatus });
+      setStatus(newStatus);
+      setAlert({
+        severity: "success",
+        message: "Order status updated successfully",
+      });
+    } catch (error) {
+      setAlert({ severity: "error", message: "Failed to update status" });
     }
   };
 
@@ -126,75 +142,75 @@ const OrderCard = ({ order, onDeleteOrder, setAlert }) => {
         >
           {product.name || "Unknown Product"}
         </Typography>
-        <Typography
-          variant="body2"
-          color="#CCCCCC"
-          sx={{
-            mb: 1,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.9rem" },
-            minHeight: { xs: "2.4em", sm: "2.6em", md: "2.8em" },
-            pl: 0.5,
-          }}
-        >
-          {product.description || "No description available"}
-        </Typography>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 1,
-            pl: 0.5,
-            pr: 0.5,
-          }}
-        >
-          <Chip
-            label={`Quantity Ordered: ${order.quantity}`}
-            size="small"
+        {isRequested ? (
+          <Box sx={{ mt: 1, px: 0.5 }}>
+            <Dropdown
+              label="Status"
+              name="status"
+              value={status}
+              onChange={handleStatusChange}
+              options={[
+                { value: "Pending", label: "Pending" },
+                { value: "Delivered", label: "Delivered" },
+              ]}
+            />
+          </Box>
+        ) : (
+          <Box
             sx={{
-              backgroundColor: "#3D3D3D",
-              color: "#DDDDDD",
-              fontSize: { xs: "0.65rem", sm: "0.7rem", md: "0.75rem" },
-              height: { xs: "20px", sm: "22px", md: "24px" },
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
+              pl: 0.5,
+              pr: 0.5,
             }}
-          />
-          <Typography
-            variant="body2"
-            color="#FF8C00"
-            sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.9rem" } }}
           >
-            Order Date: {new Date(order.orderDate).toLocaleDateString()}
-          </Typography>
-          <Typography
-            variant="body2"
-            color="#FF8C00"
-            sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.9rem" } }}
-          >
-            Delivery Status: {order.status}
-          </Typography>
-        </Box>
+            <Chip
+              label={`Quantity Ordered: ${order.quantity}`}
+              size="small"
+              sx={{
+                backgroundColor: "#3D3D3D",
+                color: "#DDDDDD",
+                fontSize: { xs: "0.65rem", sm: "0.7rem", md: "0.75rem" },
+                height: { xs: "20px", sm: "22px", md: "24px" },
+              }}
+            />
+            <Typography
+              variant="body2"
+              color="#FF8C00"
+              sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.9rem" } }}
+            >
+              Order Date: {new Date(order.orderDate).toLocaleDateString()}
+            </Typography>
+            <Typography
+              variant="body2"
+              color="#FF8C00"
+              sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.9rem" } }}
+            >
+              Delivery Status: {order.status}
+            </Typography>
+          </Box>
+        )}
       </CardContent>
-      <CardActions
-        sx={{ p: { xs: 1, sm: 1.5, md: 2 }, justifyContent: "center" }}
-      >
-        <Button
-          size="small"
-          onClick={handleDelete}
-          disabled={isDeleting}
-          startIcon={<DeleteIcon />}
-          sx={{
-            color: "#FF5555",
-            "&:hover": { backgroundColor: "rgba(255, 85, 85, 0.1)" },
-            fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.9rem" },
-          }}
+      {!isRequested && (
+        <CardActions
+          sx={{ p: { xs: 1, sm: 1.5, md: 2 }, justifyContent: "center" }}
         >
-          {isDeleting ? "Cancelling..." : "Cancel"}
-        </Button>
-      </CardActions>
+          <Button
+            size="small"
+            onClick={handleDelete}
+            disabled={isDeleting}
+            startIcon={<DeleteIcon />}
+            sx={{
+              color: "#FF5555",
+              "&:hover": { backgroundColor: "rgba(255, 85, 85, 0.1)" },
+              fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.9rem" },
+            }}
+          >
+            {isDeleting ? "Cancelling..." : "Cancel"}
+          </Button>
+        </CardActions>
+      )}
     </MuiCard>
   );
 };

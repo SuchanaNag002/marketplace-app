@@ -19,7 +19,7 @@ import Sidebar from "../../components/ui/Sidebar";
 import Dialog from "../../components/ui/Dialog";
 import { UserContext } from "../../context/userContext";
 import { ProductContext } from "../../context/productContext";
-import { getOrders } from "../../api/OrdersApi";
+import { fetchRequestedOrders, getOrders } from "../../api/OrdersApi";
 import ProductCard from "../../components/ProductComponent/ProductCard";
 import OrderCard from "../../components/OrderComponent/OrderCard";
 import ProductForm from "../../components/ProductComponent/ProductForm";
@@ -101,9 +101,12 @@ const Dashboard = ({ onLogout }) => {
     } else if (location.pathname === "/editMyProducts") {
       setViewMode("edit");
       fetchMyProducts();
-    } else if (location.pathname === "/myOrders") {
+    } else if (location.pathname === "/placedOrders") {
       setViewMode("orders");
       fetchMyOrders();
+    } else if (location.pathname === "/requestedOrders") {
+      setViewMode("requested");
+      fetchRequestedOrdersForUser();
     }
   }, [location.pathname, products, loading]);
 
@@ -141,10 +144,20 @@ const Dashboard = ({ onLogout }) => {
     }
   };
 
+  const fetchRequestedOrdersForUser = async () => {
+    try {
+      const orders = await fetchRequestedOrders(); 
+      console.log(orders); 
+      setFilteredProducts(orders); 
+    } catch (error) {
+      console.error("Error fetching requested orders:", error);
+    }
+  };
+  
   const handleSearchChange = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
-    if (viewMode === "orders") {
+    if (viewMode === "orders" || viewMode === "requested") {
       const filtered = filteredProducts.filter((order) =>
         order.product?.name.toLowerCase().includes(query)
       );
@@ -177,8 +190,7 @@ const Dashboard = ({ onLogout }) => {
 
   const handleSubmitProduct = async (data) => {
     try {
-      let productData;
-      productData = data;
+      let productData = data;
       if (editProductData) {
         const updatedProduct = await editProduct(
           editProductData.id,
@@ -321,10 +333,10 @@ const Dashboard = ({ onLogout }) => {
         </ListItem>
         <ListItem disablePadding>
           <ListItemButton
-            onClick={() => navigate("/myOrders")}
+            onClick={() => navigate("/placedOrders")}
             sx={{
               justifyContent: "center",
-              ...(location.pathname === "/myOrders" && selectedStyle),
+              ...(location.pathname === "/placedOrders" && selectedStyle),
               "&:hover": selectedStyle,
             }}
           >
@@ -332,7 +344,25 @@ const Dashboard = ({ onLogout }) => {
               <ListAltIcon sx={{ color: darkOrange }} />
             </ListItemIcon>
             <ListItemText
-              primary="My Orders"
+              primary="Placed Orders"
+              primaryTypographyProps={{ sx: gradientStyle }}
+            />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={() => navigate("/requestedOrders")}
+            sx={{
+              justifyContent: "center",
+              ...(location.pathname === "/requestedOrders" && selectedStyle),
+              "&:hover": selectedStyle,
+            }}
+          >
+            <ListItemIcon sx={{ minWidth: "36px" }}>
+              <ListAltIcon sx={{ color: darkOrange }} />
+            </ListItemIcon>
+            <ListItemText
+              primary="Requested Orders"
               primaryTypographyProps={{ sx: gradientStyle }}
             />
           </ListItemButton>
@@ -412,7 +442,7 @@ const Dashboard = ({ onLogout }) => {
     if (filteredProducts.length === 0) {
       return <EmptyState />;
     }
-    if (viewMode === "orders") {
+    if (viewMode === "orders" || viewMode === "requested") {
       return (
         <Box
           sx={{
@@ -433,6 +463,7 @@ const Dashboard = ({ onLogout }) => {
               order={order}
               onDeleteOrder={handleDeleteOrder}
               setAlert={setAlert}
+              isRequested={viewMode === "requested"}
             />
           ))}
         </Box>

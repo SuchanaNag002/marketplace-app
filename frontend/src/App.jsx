@@ -13,10 +13,11 @@ const App = () => {
       <Routes>
         <Route path="/store" element={isAuthenticated ? <Dashboard onLogout={logout} /> : <Navigate to="/login" />} />
         <Route path="/editMyProducts" element={isAuthenticated ? <Dashboard onLogout={logout} /> : <Navigate to="/login" />} />
-        <Route path="/myOrders" element={isAuthenticated ? <Dashboard onLogout={logout} /> : <Navigate to="/login" />} />
+        <Route path="/placedOrders" element={isAuthenticated ? <Dashboard onLogout={logout} /> : <Navigate to="/login" />} />
+        <Route path="/requestedOrders" element={isAuthenticated ? <Dashboard onLogout={logout} /> : <Navigate to="/login" />} />
         <Route path="/login" element={isAuthenticated ? <Navigate to="/store" /> : <Login />} />
         <Route path="/signup" element={isAuthenticated ? <Navigate to="/store" /> : <Signup />} />
-        <Route path="*" element={<Navigate to="/store" />} />
+        <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </Router>
   );

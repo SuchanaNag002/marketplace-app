@@ -53,3 +53,12 @@ export const deleteOrderByOrderId = async (req, res) => {
     res.status(500).json({ error: "Error deleting order" });
   }
 };
+
+export const fetchRequestedOrders = async (req, res) => {
+  try {
+    const orders = await orderService.fetchRequestedOrders(req.user.id);
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch requested orders" });
+  }
+};

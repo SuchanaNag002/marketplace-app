@@ -19,3 +19,8 @@ export const deleteOrder = async (orderId) => {
   const response = await apiClient.delete(`/orders/${orderId}`);
   return response.data;
 };
+
+export const fetchRequestedOrders = async () => {
+  const response = await apiClient.get("/orders/requested");
+  return response.data;
+};
