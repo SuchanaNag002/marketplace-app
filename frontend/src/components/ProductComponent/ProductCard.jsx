@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -16,6 +16,7 @@ import Counter from "../ui/Counter";
 import TooltipComponent from "../ui/Tooltip";
 import { createOrder } from "../../api/OrdersApi";
 import { updateProduct } from "../../api/ProductsApi";
+import LoadingState from "../ui/LoadingState";
 
 const ProductCard = ({
   product,
@@ -28,18 +29,22 @@ const ProductCard = ({
   setAlert,
 }) => {
   const backendUrl = import.meta.env.VITE_BACKEND_DOMAIN;
-  const imageSrc = product.imageUrl?.startsWith("/assets")
-    ? `${backendUrl}${product.imageUrl}`
-    : "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
   const [quantityToOrder, setQuantityToOrder] = useState(1);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isOrdering, setIsOrdering] = useState(false);
   const [counterKey, setCounterKey] = useState(0);
+  const [imageLoaded, setImageLoaded] = useState(false); 
   const isOwnProduct =
     user && product.sellerId && product.sellerId.includes(user.id);
+
+  const imageSrc = product.image?.[0]?.thumbnails?.large?.url || "";
+
+  // Handle quantity change for the counter
   const handleQuantityChange = (quantity) => {
     setQuantityToOrder(quantity);
   };
+
+  // Handle placing an order
   const handlePlaceOrder = async () => {
     if (quantityToOrder > 0 && user) {
       setIsOrdering(true);
@@ -69,10 +74,16 @@ const ProductCard = ({
       }
     }
   };
+
+  // Handle image load completion
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+  };
+
   return (
     <MuiCard
       sx={{
-        maxHeight: "36rem",
+        maxHeight: { xs: "32rem", sm: "36rem" }, 
         display: "flex",
         flexDirection: "column",
         backgroundColor: "#2A2A2A",
@@ -84,30 +95,62 @@ const ProductCard = ({
           transform: "translateY(-5px)",
           boxShadow: "0 0 25px rgba(255, 140, 0, 0.6)",
         },
+        width: { xs: "100%", sm: "auto" }, 
+        maxWidth: { xs: "100%", sm: "300px" },
       }}
     >
+      {/* Show LoadingState while image is loading */}
+      {!imageLoaded && (
+        <Box
+          sx={{
+            height: "160px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "#2A2A2A",
+          }}
+        >
+          <LoadingState />
+        </Box>
+      )}
+
+      {/* CardMedia for the image */}
       <CardMedia
         component="img"
         height="160"
         image={imageSrc}
         alt={product.name}
+        onLoad={handleImageLoad} 
         sx={{
           objectFit: "cover",
           borderBottom: "2px solid #FF8C00",
           m: 1,
           borderRadius: "8px",
           width: "calc(100% - 16px)",
+          display: imageLoaded ? "block" : "none", 
         }}
       />
-      <CardContent sx={{ flexGrow: 1, p: { xs: 1.5, sm: 2 }, pb: 0 }}>
+
+      <CardContent sx={{ flexGrow: 1, p: { xs: 1, sm: 2 }, pb: 0 }}>
         <Typography
           variant="h6"
           component="h2"
-          sx={{ color: "#FF8C00", mb: 0.5 }}
+          sx={{
+            color: "#FF8C00",
+            mb: 0.5,
+            fontSize: { xs: "1rem", sm: "1.25rem" }, 
+          }}
         >
           {product.name}
         </Typography>
-        <Typography variant="body2" color="#CCCCCC" sx={{ mb: 1 }}>
+        <Typography
+          variant="body2"
+          color="#CCCCCC"
+          sx={{
+            mb: 1,
+            fontSize: { xs: "0.875rem", sm: "1rem" }, 
+          }}
+        >
           {product.description}
         </Typography>
         <Box
@@ -125,14 +168,19 @@ const ProductCard = ({
           <Typography
             variant="h6"
             component="span"
-            sx={{ color: "#FF8C00", fontWeight: "bold" }}
+            sx={{
+              color: "#FF8C00",
+              fontWeight: "bold",
+              fontSize: { xs: "1rem", sm: "1.25rem" }, 
+            }}
           >
             ${product.price?.toFixed(2) || "0.00"}
           </Typography>
         </Box>
       </CardContent>
+
       <CardActions
-        sx={{ p: { xs: 1, sm: 1.5 }, justifyContent: "space-between" }}
+        sx={{ p: { xs: 1, sm: 1.5 }, justifyContent: "space-between", flexWrap: "wrap" }}
       >
         {isStore && (
           <>
@@ -168,6 +216,8 @@ const ProductCard = ({
                       "&:hover": { backgroundColor: "#CC5500" },
                       borderRadius: "20px",
                       "&.Mui-disabled": { backgroundColor: "#FFB266" },
+                      mt: { xs: 1, sm: 0 }, 
+                      width: { xs: "100%", sm: "auto" }, 
                     }}
                     disabled
                   >
@@ -193,6 +243,8 @@ const ProductCard = ({
                       },
                       borderRadius: "20px",
                       "&.Mui-disabled": { backgroundColor: "#FFB266" },
+                      mt: { xs: 1, sm: 0 },
+                      width: { xs: "100%", sm: "auto" }, 
                     }}
                     disabled={product.quantity === 0 || isOrdering || !user}
                   >
@@ -209,6 +261,7 @@ const ProductCard = ({
               display: "flex",
               width: "100%",
               justifyContent: "space-between",
+              mt: { xs: 1, sm: 0 }, 
             }}
           >
             <Button

@@ -11,6 +11,7 @@ const ProductForm = ({ onSubmit, product = {}, setAlert }) => {
   const [image, setImage] = useState(null);
   const [error, setError] = useState("");
   const [isFileSelected, setIsFileSelected] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
@@ -28,10 +29,9 @@ const ProductForm = ({ onSubmit, product = {}, setAlert }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); 
+    setError("");
     setIsSubmitting(true);
-    setHasSubmitted(true); 
-
+    setHasSubmitted(true);
     try {
       const productData = {
         name,
@@ -39,8 +39,8 @@ const ProductForm = ({ onSubmit, product = {}, setAlert }) => {
         price: parseFloat(price),
         quantity: parseInt(quantity, 10),
       };
-
       if (image) {
+        setIsUploading(true);
         const formData = new FormData();
         formData.append("name", name);
         formData.append("description", description);
@@ -48,6 +48,7 @@ const ProductForm = ({ onSubmit, product = {}, setAlert }) => {
         formData.append("quantity", productData.quantity);
         formData.append("image", image);
         await onSubmit(formData);
+        setIsUploading(false);
       } else {
         await onSubmit(productData);
       }
@@ -62,7 +63,7 @@ const ProductForm = ({ onSubmit, product = {}, setAlert }) => {
       setImage(null);
       setIsFileSelected(false);
       setError("");
-      setHasSubmitted(false); 
+      setHasSubmitted(false);
     } catch (err) {
       console.log(err);
       const errorMessage = err.response?.data?.error || "Could not add product to store!";
@@ -83,7 +84,7 @@ const ProductForm = ({ onSubmit, product = {}, setAlert }) => {
       if (allowedTypes.includes(selectedFile.type)) {
         setImage(selectedFile);
         setIsFileSelected(true);
-        setError(""); // Clear any previous error on valid image selection
+        setError("");
       } else {
         const imageError = "Please select a valid image file (jpg, jpeg, or png).";
         setError(imageError);
@@ -98,51 +99,25 @@ const ProductForm = ({ onSubmit, product = {}, setAlert }) => {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col items-center max-w-sm w-full mx-auto py-4 space-y-4"
-    >
+    <form onSubmit={handleSubmit} className="flex flex-col items-center max-w-sm w-full mx-auto py-4 space-y-4">
       {error && <p className="text-red-500 text-center">{error}</p>}
-      <Input
-        label="Product Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-      <Input
-        label="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
-      <Input
-        label="Price"
-        type="number"
-        value={price}
-        onChange={(e) => setPrice(e.target.value)}
-      />
-      <Input
-        label="Quantity"
-        type="number"
-        value={quantity}
-        onChange={(e) => setQuantity(e.target.value)}
-      />
+      <Input label="Product Name" value={name} onChange={(e) => setName(e.target.value)} />
+      <Input label="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
+      <Input label="Price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
+      <Input label="Quantity" type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
       <div className="mb-4 w-full flex items-center justify-between">
         <label className="block text-left mb-2">Image</label>
         <div className="flex items-center space-x-2">
-          <input
-            type="file"
-            accept="image/*"
-            id="file-input"
-            className="hidden"
-            onChange={handleImageChange}
-            disabled={isFileSelected}
-          />
+          <input type="file" accept="image/*" id="file-input" className="hidden" onChange={handleImageChange} disabled={isFileSelected} />
           <label
             htmlFor="file-input"
             className={`cursor-pointer w-full p-2 border border-gray-300 rounded-md text-center bg-gray-100 ${
-              isFileSelected ? "bg-green-100" : ""
+              isFileSelected ? (isUploading ? "bg-yellow-100" : "bg-green-100") : ""
             }`}
           >
-            {isFileSelected ? (
+            {isUploading ? (
+              "Uploading..."
+            ) : isFileSelected ? (
               <span className="flex items-center justify-center text-green-600">
                 <CheckCircle className="mr-2" /> File chosen
               </span>
@@ -155,9 +130,7 @@ const ProductForm = ({ onSubmit, product = {}, setAlert }) => {
       <Button
         type="submit"
         text={isSubmitting ? "Submitting..." : "Submit"}
-        className={`flex justify-center mt-2 ${
-          isSubmitting ? "bg-gray-300 cursor-not-allowed" : ""
-        }`}
+        className={`flex justify-center mt-2 ${isSubmitting ? "bg-gray-300 cursor-not-allowed" : ""}`}
         disabled={isSubmitting}
       />
     </form>
