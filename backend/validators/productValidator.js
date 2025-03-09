@@ -39,9 +39,9 @@ const updateProductValidator = Joi.object({
     'number.base': 'Price must be a number',
     'number.min': 'Price must be greater than 0'
   }),
-  quantity: Joi.number().optional().min(1).messages({
+  quantity: Joi.number().optional().min(0).messages({
     'number.base': 'Quantity must be a number',
-    'number.min': 'Quantity must be greater than 0'
+    'number.min': 'Quantity must not be less than 0'
   }),
   image: Joi.any().optional(),
 });
