@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Input from "../ui/input";
-import Button from "../ui/button";
+import Input from "../../components/ui/Input";
+import Button from "../../components/ui/Button";
 import { CheckCircle } from "@mui/icons-material";
 
 const ProductForm = ({ onSubmit, product = {}, setAlert }) => {
