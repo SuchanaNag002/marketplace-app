@@ -14,10 +14,6 @@ const addProduct = async (productData) => {
 };
 
 const updateProduct = async (id, updatedFields) => {
-  if (updatedFields.userId) {
-    updatedFields.sellerId = [updatedFields.userId];
-    delete updatedFields.userId;
-  }
   const records = await base("Products").update([
     { id, fields: updatedFields },
   ]);
