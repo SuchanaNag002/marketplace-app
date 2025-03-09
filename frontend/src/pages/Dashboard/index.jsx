@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Box, Typography, useMediaQuery, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
+import {
+  Box,
+  Typography,
+  useMediaQuery,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import EditIcon from "@mui/icons-material/Edit";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
@@ -40,7 +49,14 @@ const selectedStyle = {
 
 const Dashboard = ({ onLogout }) => {
   const { user } = useContext(UserContext);
-  const { products, loading, fetchProducts, addProduct, editProduct, removeProduct } = useContext(ProductContext);
+  const {
+    products,
+    loading,
+    fetchProducts,
+    addProduct,
+    editProduct,
+    removeProduct,
+  } = useContext(ProductContext);
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useMediaQuery("(max-width:600px)");
@@ -92,7 +108,9 @@ const Dashboard = ({ onLogout }) => {
   }, [location.pathname, products, loading]);
 
   const fetchMyProducts = () => {
-    const items = products.filter((p) => p.userId === user.id);
+    const items = products.filter(
+      (p) => p.sellerId && p.sellerId.includes(user.id)
+    );
     setMyProducts(items);
     setFilteredProducts(items);
   };
@@ -154,18 +172,22 @@ const Dashboard = ({ onLogout }) => {
   const handleSubmitProduct = async (data) => {
     try {
       let productData;
-      if (data instanceof FormData) {
-        if (!editProductData) data.append("userId", user.id);
-        productData = data;
-      } else {
-        productData = { ...data, userId: user.id };
-      }
+      productData = data;
       if (editProductData) {
-        const updatedProduct = await editProduct(editProductData.id, productData);
-        setAlert({ severity: "success", message: "Product updated successfully" });
+        const updatedProduct = await editProduct(
+          editProductData.id,
+          productData
+        );
+        setAlert({
+          severity: "success",
+          message: "Product updated successfully",
+        });
       } else {
         const newProduct = await addProduct(productData);
-        setAlert({ severity: "success", message: "Product added successfully" });
+        setAlert({
+          severity: "success",
+          message: "Product added successfully",
+        });
         if (viewMode === "edit") {
           setMyProducts((prev) => [...prev, newProduct]);
           setFilteredProducts((prev) => [...prev, newProduct]);
@@ -184,7 +206,9 @@ const Dashboard = ({ onLogout }) => {
     } catch (error) {
       setAlert({
         severity: "error",
-        message: editProductData ? "Could not update product!" : "Could not add product to store!",
+        message: editProductData
+          ? "Could not update product!"
+          : "Could not add product to store!",
       });
       throw error;
     }
@@ -194,7 +218,10 @@ const Dashboard = ({ onLogout }) => {
     try {
       await removeProduct(product.id);
       fetchMyProducts();
-      setAlert({ severity: "success", message: "Product deleted successfully" });
+      setAlert({
+        severity: "success",
+        message: "Product deleted successfully",
+      });
     } catch (error) {
       setAlert({ severity: "error", message: "Failed to delete product" });
     }
@@ -206,7 +233,9 @@ const Dashboard = ({ onLogout }) => {
     );
     if (viewMode === "edit") {
       setMyProducts((prevProducts) =>
-        prevProducts.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
+        prevProducts.map((p) =>
+          p.id === updatedProduct.id ? updatedProduct : p
+        )
       );
     }
   };
@@ -218,7 +247,14 @@ const Dashboard = ({ onLogout }) => {
   };
 
   const drawerContent = (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100%", alignItems: "center" }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        alignItems: "center",
+      }}
+    >
       <Typography variant="h6" sx={{ p: 2, color: "#fff" }}>
         Menu
       </Typography>
@@ -226,64 +262,138 @@ const Dashboard = ({ onLogout }) => {
         <ListItem disablePadding>
           <ListItemButton
             onClick={() => navigate("/store")}
-            sx={{ justifyContent: "center", ...(location.pathname === "/store" && selectedStyle), "&:hover": selectedStyle }}
+            sx={{
+              justifyContent: "center",
+              ...(location.pathname === "/store" && selectedStyle),
+              "&:hover": selectedStyle,
+            }}
           >
             <ListItemIcon sx={{ minWidth: "36px" }}>
               <StoreIcon sx={{ color: darkOrange }} />
             </ListItemIcon>
-            <ListItemText primary="Go To Store" primaryTypographyProps={{ sx: gradientStyle }} />
+            <ListItemText
+              primary="Go To Store"
+              primaryTypographyProps={{ sx: gradientStyle }}
+            />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
           <ListItemButton
             onClick={handleAddProductClick}
-            sx={{ justifyContent: "center", ...(openDialog && !editProductData && selectedStyle), "&:hover": selectedStyle }}
+            sx={{
+              justifyContent: "center",
+              ...(openDialog && !editProductData && selectedStyle),
+              "&:hover": selectedStyle,
+            }}
           >
             <ListItemIcon sx={{ minWidth: "36px" }}>
               <AddCircleOutlineIcon sx={{ color: darkOrange }} />
             </ListItemIcon>
-            <ListItemText primary="Add Product" primaryTypographyProps={{ sx: gradientStyle }} />
+            <ListItemText
+              primary="Add Product"
+              primaryTypographyProps={{ sx: gradientStyle }}
+            />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
           <ListItemButton
             onClick={() => navigate("/editMyProducts")}
-            sx={{ justifyContent: "center", ...(location.pathname === "/editMyProducts" && selectedStyle), "&:hover": selectedStyle }}
+            sx={{
+              justifyContent: "center",
+              ...(location.pathname === "/editMyProducts" && selectedStyle),
+              "&:hover": selectedStyle,
+            }}
           >
             <ListItemIcon sx={{ minWidth: "36px" }}>
               <EditIcon sx={{ color: darkOrange }} />
             </ListItemIcon>
-            <ListItemText primary="Edit Products" primaryTypographyProps={{ sx: gradientStyle }} />
+            <ListItemText
+              primary="Edit Products"
+              primaryTypographyProps={{ sx: gradientStyle }}
+            />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
           <ListItemButton
             onClick={() => navigate("/myOrders")}
-            sx={{ justifyContent: "center", ...(location.pathname === "/myOrders" && selectedStyle), "&:hover": selectedStyle }}
+            sx={{
+              justifyContent: "center",
+              ...(location.pathname === "/myOrders" && selectedStyle),
+              "&:hover": selectedStyle,
+            }}
           >
             <ListItemIcon sx={{ minWidth: "36px" }}>
               <ListAltIcon sx={{ color: darkOrange }} />
             </ListItemIcon>
-            <ListItemText primary="My Orders" primaryTypographyProps={{ sx: gradientStyle }} />
+            <ListItemText
+              primary="My Orders"
+              primaryTypographyProps={{ sx: gradientStyle }}
+            />
           </ListItemButton>
         </ListItem>
       </List>
-      <Box sx={{ p: 2, borderTop: "1px solid #555", width: "100%", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-        <Box sx={{ display: "flex", alignItems: "center", mb: 1, ml: { xs: 1, sm: 2 } }}>
-          <Box sx={{ width: { xs: 36, sm: 40 }, height: { xs: 36, sm: 40 }, borderRadius: "50%", background: "linear-gradient(45deg, #FF8C00, #FFA500)", display: "flex", alignItems: "center", justifyContent: "center", mr: 1 }}>
-            <Typography sx={{ color: "#fff", fontWeight: "semibold", fontSize: { xs: "14px", sm: "16px" } }}>
+      <Box
+        sx={{
+          p: 2,
+          borderTop: "1px solid #555",
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            mb: 1,
+            ml: { xs: 1, sm: 2 },
+          }}
+        >
+          <Box
+            sx={{
+              width: { xs: 36, sm: 40 },
+              height: { xs: 36, sm: 40 },
+              borderRadius: "50%",
+              background: "linear-gradient(45deg, #FF8C00, #FFA500)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              mr: 1,
+            }}
+          >
+            <Typography
+              sx={{
+                color: "#fff",
+                fontWeight: "semibold",
+                fontSize: { xs: "14px", sm: "16px" },
+              }}
+            >
               {user?.name?.slice(0, 2).toUpperCase()}
             </Typography>
           </Box>
-          <Typography variant="body2" sx={{ color: "#fff", fontWeight: "semibold" }}>
+          <Typography
+            variant="body2"
+            sx={{ color: "#fff", fontWeight: "semibold" }}
+          >
             {user?.name}
           </Typography>
         </Box>
-        <ListItemButton onClick={onLogout} sx={{ justifyContent: "center", "&:hover": selectedStyle, width: "100%" }}>
+        <ListItemButton
+          onClick={onLogout}
+          sx={{
+            justifyContent: "center",
+            "&:hover": selectedStyle,
+            width: "100%",
+          }}
+        >
           <ListItemIcon sx={{ minWidth: "36px" }}>
             <ExitToAppIcon sx={{ color: darkOrange }} />
           </ListItemIcon>
-          <ListItemText primary="Logout" primaryTypographyProps={{ sx: gradientStyle }} />
+          <ListItemText
+            primary="Logout"
+            primaryTypographyProps={{ sx: gradientStyle }}
+          />
         </ListItemButton>
       </Box>
     </Box>
@@ -302,12 +412,22 @@ const Dashboard = ({ onLogout }) => {
           sx={{
             display: "grid",
             mb: 4,
-            gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)", lg: "repeat(4, 1fr)" },
+            gridTemplateColumns: {
+              xs: "1fr",
+              sm: "repeat(2, 1fr)",
+              md: "repeat(3, 1fr)",
+              lg: "repeat(4, 1fr)",
+            },
             gap: { xs: 1, sm: 2 },
           }}
         >
           {filteredProducts.map((order) => (
-            <OrderCard key={order.id} order={order} onDeleteOrder={handleDeleteOrder} setAlert={setAlert} />
+            <OrderCard
+              key={order.id}
+              order={order}
+              onDeleteOrder={handleDeleteOrder}
+              setAlert={setAlert}
+            />
           ))}
         </Box>
       );
@@ -317,7 +437,12 @@ const Dashboard = ({ onLogout }) => {
         sx={{
           display: "grid",
           mb: 4,
-          gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)", lg: "repeat(4, 1fr)" },
+          gridTemplateColumns: {
+            xs: "1fr",
+            sm: "repeat(2, 1fr)",
+            md: "repeat(3, 1fr)",
+            lg: "repeat(4, 1fr)",
+          },
           gap: { xs: 1, sm: 2 },
         }}
       >
@@ -341,15 +466,39 @@ const Dashboard = ({ onLogout }) => {
   return (
     <Box sx={{ display: "flex" }}>
       {showNavbar && (
-        <Navbar onSearchChange={handleSearchChange} handleDrawerToggle={handleDrawerToggle} searchQuery={searchQuery} />
+        <Navbar
+          onSearchChange={handleSearchChange}
+          handleDrawerToggle={handleDrawerToggle}
+          searchQuery={searchQuery}
+        />
       )}
-      <Sidebar drawerWidth={drawerWidth} drawerContent={drawerContent} mobileOpen={mobileOpen} onClose={handleDrawerToggle} />
+      <Sidebar
+        drawerWidth={drawerWidth}
+        drawerContent={drawerContent}
+        mobileOpen={mobileOpen}
+        onClose={handleDrawerToggle}
+      />
       <Box
         component="main"
-        sx={{ flexGrow: 1, p: { xs: 2, sm: 3 }, width: { sm: `calc(100% - ${drawerWidth}px)` }, mt: { xs: showNavbar ? 16 : 2, sm: showNavbar ? 8 : 2, md: showNavbar ? 8 : 2 } }}
+        sx={{
+          flexGrow: 1,
+          p: { xs: 2, sm: 3 },
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          mt: {
+            xs: showNavbar ? 16 : 2,
+            sm: showNavbar ? 8 : 2,
+            md: showNavbar ? 8 : 2,
+          },
+        }}
       >
         {renderContent()}
-        {alert && <AlertComponent severity={alert.severity} message={alert.message} onClose={() => setAlert(null)} />}
+        {alert && (
+          <AlertComponent
+            severity={alert.severity}
+            message={alert.message}
+            onClose={() => setAlert(null)}
+          />
+        )}
       </Box>
       <Dialog
         open={openDialog}
@@ -359,7 +508,11 @@ const Dashboard = ({ onLogout }) => {
         }}
         title={editProductData ? "Edit Product" : "Add New Product"}
       >
-        <ProductForm onSubmit={handleSubmitProduct} product={editProductData || {}} setAlert={setAlert} />
+        <ProductForm
+          onSubmit={handleSubmitProduct}
+          product={editProductData || {}}
+          setAlert={setAlert}
+        />
       </Dialog>
     </Box>
   );

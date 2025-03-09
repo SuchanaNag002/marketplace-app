@@ -6,15 +6,17 @@ const getProducts = async () => {
 };
 
 const addProduct = async (productData) => {
+  const { userId, ...rest } = productData;
   const records = await base("Products").create([
-    { fields: { ...productData, sellerId: productData.userId } },
+    { fields: { ...rest, sellerId: [userId] } },
   ]);
   return { id: records[0].id, ...records[0].fields };
 };
 
 const updateProduct = async (id, updatedFields) => {
   if (updatedFields.userId) {
-    updatedFields.sellerId = updatedFields.userId;
+    updatedFields.sellerId = [updatedFields.userId];
+    delete updatedFields.userId;
   }
   const records = await base("Products").update([
     { id, fields: updatedFields },

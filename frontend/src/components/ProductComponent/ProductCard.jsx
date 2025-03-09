@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { Box, Typography, Button, Card as MuiCard, CardMedia, CardContent, CardActions, Chip } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Button,
+  Card as MuiCard,
+  CardMedia,
+  CardContent,
+  CardActions,
+  Chip,
+} from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -8,14 +17,26 @@ import TooltipComponent from "../ui/Tooltip";
 import { createOrder } from "../../api/OrdersApi";
 import { updateProduct } from "../../api/ProductsApi";
 
-const ProductCard = ({ product, onEdit, onDelete, onPlaceOrder, isEditable, isStore, user, setAlert }) => {
+const ProductCard = ({
+  product,
+  onEdit,
+  onDelete,
+  onPlaceOrder,
+  isEditable,
+  isStore,
+  user,
+  setAlert,
+}) => {
   const backendUrl = import.meta.env.VITE_BACKEND_DOMAIN;
-  const imageSrc = product.imageUrl?.startsWith("/assets") ? `${backendUrl}${product.imageUrl}` : "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+  const imageSrc = product.imageUrl?.startsWith("/assets")
+    ? `${backendUrl}${product.imageUrl}`
+    : "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
   const [quantityToOrder, setQuantityToOrder] = useState(1);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isOrdering, setIsOrdering] = useState(false);
   const [counterKey, setCounterKey] = useState(0);
-  const isOwnProduct = user && product.userId === user.id;
+  const isOwnProduct =
+    user && product.sellerId && product.sellerId.includes(user.id);
   const handleQuantityChange = (quantity) => {
     setQuantityToOrder(quantity);
   };
@@ -79,30 +100,60 @@ const ProductCard = ({ product, onEdit, onDelete, onPlaceOrder, isEditable, isSt
         }}
       />
       <CardContent sx={{ flexGrow: 1, p: { xs: 1.5, sm: 2 }, pb: 0 }}>
-        <Typography variant="h6" component="h2" sx={{ color: "#FF8C00", mb: 0.5 }}>
+        <Typography
+          variant="h6"
+          component="h2"
+          sx={{ color: "#FF8C00", mb: 0.5 }}
+        >
           {product.name}
         </Typography>
         <Typography variant="body2" color="#CCCCCC" sx={{ mb: 1 }}>
           {product.description}
         </Typography>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Chip label={`${product.quantity || 0} in stock`} size="small" sx={{ backgroundColor: "#3D3D3D", color: "#DDDDDD" }} />
-          <Typography variant="h6" component="span" sx={{ color: "#FF8C00", fontWeight: "bold" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Chip
+            label={`${product.quantity || 0} in stock`}
+            size="small"
+            sx={{ backgroundColor: "#3D3D3D", color: "#DDDDDD" }}
+          />
+          <Typography
+            variant="h6"
+            component="span"
+            sx={{ color: "#FF8C00", fontWeight: "bold" }}
+          >
             ${product.price?.toFixed(2) || "0.00"}
           </Typography>
         </Box>
       </CardContent>
-      <CardActions sx={{ p: { xs: 1, sm: 1.5 }, justifyContent: "space-between" }}>
+      <CardActions
+        sx={{ p: { xs: 1, sm: 1.5 }, justifyContent: "space-between" }}
+      >
         {isStore && (
           <>
             {isOwnProduct ? (
               <TooltipComponent title="This product was uploaded by you. Hence you cannot purchase it.">
                 <span>
-                  <Counter key={counterKey} max={product.quantity} onChange={handleQuantityChange} disabled />
+                  <Counter
+                    key={counterKey}
+                    max={product.quantity}
+                    onChange={handleQuantityChange}
+                    disabled
+                  />
                 </span>
               </TooltipComponent>
             ) : (
-              <Counter key={counterKey} max={product.quantity} onChange={handleQuantityChange} disabled={product.quantity === 0} />
+              <Counter
+                key={counterKey}
+                max={product.quantity}
+                onChange={handleQuantityChange}
+                disabled={product.quantity === 0}
+              />
             )}
             {isOwnProduct ? (
               <TooltipComponent title="This product was uploaded by you. Hence you cannot purchase it.">
@@ -125,7 +176,9 @@ const ProductCard = ({ product, onEdit, onDelete, onPlaceOrder, isEditable, isSt
                 </span>
               </TooltipComponent>
             ) : (
-              <TooltipComponent title={product.quantity === 0 ? "Out of stock" : ""}>
+              <TooltipComponent
+                title={product.quantity === 0 ? "Out of stock" : ""}
+              >
                 <span>
                   <Button
                     size="small"
@@ -135,7 +188,9 @@ const ProductCard = ({ product, onEdit, onDelete, onPlaceOrder, isEditable, isSt
                     startIcon={<ShoppingCartIcon />}
                     sx={{
                       backgroundColor: isOrdering ? "#FFB266" : "#FF8C00",
-                      "&:hover": { backgroundColor: isOrdering ? "#FFB266" : "#CC5500" },
+                      "&:hover": {
+                        backgroundColor: isOrdering ? "#FFB266" : "#CC5500",
+                      },
                       borderRadius: "20px",
                       "&.Mui-disabled": { backgroundColor: "#FFB266" },
                     }}
@@ -149,12 +204,21 @@ const ProductCard = ({ product, onEdit, onDelete, onPlaceOrder, isEditable, isSt
           </>
         )}
         {isEditable && (
-          <Box sx={{ display: "flex", width: "100%", justifyContent: "space-between" }}>
+          <Box
+            sx={{
+              display: "flex",
+              width: "100%",
+              justifyContent: "space-between",
+            }}
+          >
             <Button
               size="small"
               onClick={() => onEdit(product)}
               startIcon={<EditIcon />}
-              sx={{ color: "#FF8C00", "&:hover": { backgroundColor: "rgba(255, 140, 0, 0.1)" } }}
+              sx={{
+                color: "#FF8C00",
+                "&:hover": { backgroundColor: "rgba(255, 140, 0, 0.1)" },
+              }}
             >
               Edit
             </Button>
@@ -164,16 +228,25 @@ const ProductCard = ({ product, onEdit, onDelete, onPlaceOrder, isEditable, isSt
                 setIsDeleting(true);
                 try {
                   await onDelete(product);
-                  setAlert({ severity: "success", message: "Product deleted successfully" });
+                  setAlert({
+                    severity: "success",
+                    message: "Product deleted successfully",
+                  });
                 } catch (error) {
-                  setAlert({ severity: "error", message: "Failed to delete product" });
+                  setAlert({
+                    severity: "error",
+                    message: "Failed to delete product",
+                  });
                 } finally {
                   setIsDeleting(false);
                 }
               }}
               disabled={isDeleting}
               startIcon={<DeleteIcon />}
-              sx={{ color: "#FF5555", "&:hover": { backgroundColor: "rgba(255, 85, 85, 0.1)" } }}
+              sx={{
+                color: "#FF5555",
+                "&:hover": { backgroundColor: "rgba(255, 85, 85, 0.1)" },
+              }}
             >
               {isDeleting ? "Deleting..." : "Delete"}
             </Button>
