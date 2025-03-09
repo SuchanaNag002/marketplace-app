@@ -14,16 +14,18 @@ const addOrderByProductIdAndUserId = async (
   userId,
   additionalData = {}
 ) => {
-  const orderData = { productId, userId, ...additionalData };
-  const records = await base("Orders").create([
-    { fields: { ...orderData, buyerId: orderData.userId } },
-  ]);
+  const orderData = {
+    productId: [productId], 
+    buyerId: [userId], 
+    ...additionalData, 
+  };
+  const records = await base("Orders").create([{ fields: orderData }]);
   return { id: records[0].id, ...records[0].fields };
 };
 
 const updateOrderByOrderId = async (orderId, orderData) => {
   if (orderData.userId) {
-    orderData.buyerId = orderData.userId;
+    orderData.buyerId = [orderData.userId]; 
   }
   const records = await base("Orders").update([
     { id: orderId, fields: orderData },

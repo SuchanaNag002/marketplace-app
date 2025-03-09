@@ -46,14 +46,10 @@ const ProductCard = ({
     if (quantityToOrder > 0 && user) {
       setIsOrdering(true);
       const orderDate = new Date();
-      const arrivalDate = new Date(orderDate);
-      arrivalDate.setDate(orderDate.getDate() + 3);
       const orderData = {
-        userId: user.id,
         productId: product.id,
         quantity: quantityToOrder,
         orderDate: orderDate.toISOString().split("T")[0],
-        arrivalDate: arrivalDate.toISOString().split("T")[0],
       };
       try {
         await createOrder(orderData);

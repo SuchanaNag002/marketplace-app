@@ -18,16 +18,15 @@ export const addOrderByProductIdAndUserId = async (req, res) => {
     }
     const order = await orderService.addOrderByProductIdAndUserId(
       value.productId,
-      value.userId,
+      req.user.id,
       {
         quantity: value.quantity,
         orderDate: value.orderDate,
-        arrivalDate: value.arrivalDate,
       }
     );
     res.status(201).json(order);
   } catch (error) {
-    res.status(500).json({ error: "Error placing order" });
+    res.status(500).json({ error: error.message || "Error placing order" });
   }
 };
 

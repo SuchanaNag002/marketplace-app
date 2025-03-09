@@ -1,6 +1,10 @@
 import Joi from 'joi';
 
 const orderValidator = Joi.object({
+  productId: Joi.string().required().messages({
+    'string.empty': 'Product ID is required',
+    'any.required': 'Product ID is required'
+  }),
   quantity: Joi.number().required().min(1).messages({
     'number.base': 'Quantity must be a number',
     'any.required': 'Quantity is required',

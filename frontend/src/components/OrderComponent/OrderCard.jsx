@@ -30,7 +30,9 @@ const OrderCard = ({ order, onDeleteOrder, setAlert }) => {
   };
 
   const product = order.product || {};
-  const imageSrc = product.image?.[0]?.thumbnails?.large?.url || "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3";
+  const imageSrc =
+    product.image?.[0]?.thumbnails?.large?.url ||
+    "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3";
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -41,7 +43,10 @@ const OrderCard = ({ order, onDeleteOrder, setAlert }) => {
         await updateProduct(product.id, { quantity: updatedQuantity });
       }
       onDeleteOrder(order.id);
-      setAlert({ severity: "success", message: "Order cancelled successfully" });
+      setAlert({
+        severity: "success",
+        message: "Order cancelled successfully",
+      });
     } catch (error) {
       setAlert({ severity: "error", message: "Failed to cancel order" });
     } finally {
@@ -56,7 +61,7 @@ const OrderCard = ({ order, onDeleteOrder, setAlert }) => {
   return (
     <MuiCard
       sx={{
-        maxHeight: { xs: "26rem", sm: "28rem" },
+        maxHeight: { xs: "50rem", sm: "50rem" },
         display: "flex",
         flexDirection: "column",
         backgroundColor: "#2A2A2A",
@@ -169,14 +174,13 @@ const OrderCard = ({ order, onDeleteOrder, setAlert }) => {
             color="#FF8C00"
             sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.9rem" } }}
           >
-            Delivery Date:{" "}
-            {order.arrivalDate
-              ? new Date(order.arrivalDate).toLocaleDateString()
-              : "Pending"}
+            Delivery Status: {order.status}
           </Typography>
         </Box>
       </CardContent>
-      <CardActions sx={{ p: { xs: 1, sm: 1.5, md: 2 }, justifyContent: "center" }}>
+      <CardActions
+        sx={{ p: { xs: 1, sm: 1.5, md: 2 }, justifyContent: "center" }}
+      >
         <Button
           size="small"
           onClick={handleDelete}
