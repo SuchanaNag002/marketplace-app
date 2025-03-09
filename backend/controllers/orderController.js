@@ -22,7 +22,7 @@ export const addOrderByProductIdAndUserId = async (req, res) => {
       {
         quantity: value.quantity,
         orderDate: value.orderDate,
-        arrivalDate: value.arrivalDate
+        arrivalDate: value.arrivalDate,
       }
     );
     res.status(201).json(order);

@@ -1,11 +1,5 @@
 import productService from "../services/productService.js";
 import { productValidator, updateProductValidator } from "../validators/productValidator.js";
-import { fileURLToPath } from "url";
-import path from "path";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const assetsBaseDir = path.join(__dirname, "..");
 
 export const getProducts = async (req, res) => {
   try {
@@ -24,13 +18,9 @@ export const addProduct = async (req, res) => {
     const userId = req.user.id;
     let validatedData = { ...value, userId };
     if (req.file) {
-      validatedData.image = {
-        buffer: req.file.buffer,
-        originalname: req.file.originalname,
-        mimetype: req.file.mimetype,
-      };
+      validatedData.image = req.file.path;
     }
-    const product = await productService.addProduct(validatedData, assetsBaseDir);
+    const product = await productService.addProduct(validatedData);
     res.status(201).json(product);
   } catch (error) {
     res.status(500).json({ error: error.message || "Error adding product" });
@@ -41,15 +31,11 @@ export const updateProduct = async (req, res) => {
   try {
     let productData = { ...req.body };
     if (req.file) {
-      productData.image = {
-        buffer: req.file.buffer,
-        originalname: req.file.originalname,
-        mimetype: req.file.mimetype,
-      };
+      productData.image = req.file.path;
     }
     const { error, value } = updateProductValidator.validate(productData, { allowUnknown: true });
     if (error) return res.status(400).json({ error: error.details[0].message });
-    const updatedProduct = await productService.updateProduct(req.params.id, value, assetsBaseDir);
+    const updatedProduct = await productService.updateProduct(req.params.id, value);
     res.json({ message: "Product updated successfully", product: updatedProduct });
   } catch (error) {
     res.status(500).json({ error: error.message || "Error updating product" });
