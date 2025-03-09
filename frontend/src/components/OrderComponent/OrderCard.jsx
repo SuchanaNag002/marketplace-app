@@ -12,10 +12,12 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { deleteOrder } from "../../api/OrdersApi";
 import { updateProduct } from "../../api/ProductsApi";
+import LoadingState from "../ui/LoadingState";
 
 const OrderCard = ({ order, onDeleteOrder, setAlert }) => {
   const backendUrl = import.meta.env.VITE_BACKEND_DOMAIN;
   const [isDeleting, setIsDeleting] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const gradientStyle = {
     backgroundImage: "linear-gradient(45deg, #CC5500, #FFA333)",
     backgroundClip: "text",
@@ -29,9 +31,7 @@ const OrderCard = ({ order, onDeleteOrder, setAlert }) => {
   };
 
   const product = order.product || {};
-  const imageSrc = product.imageUrl?.startsWith("/assets")
-    ? `${backendUrl}${product.imageUrl}`
-    : "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3";
+  const imageSrc = product.image?.[0]?.thumbnails?.large?.url || "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3";
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -50,10 +50,14 @@ const OrderCard = ({ order, onDeleteOrder, setAlert }) => {
     }
   };
 
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+  };
+
   return (
     <MuiCard
       sx={{
-        maxHeight: "28rem",
+        maxHeight: { xs: "26rem", sm: "28rem" },
         display: "flex",
         flexDirection: "column",
         backgroundColor: "#2A2A2A",
@@ -65,22 +69,39 @@ const OrderCard = ({ order, onDeleteOrder, setAlert }) => {
           transform: "translateY(-5px)",
           boxShadow: "0 0 25px rgba(255, 140, 0, 0.6)",
         },
-        [":-webkit-box"]:{
-          width: "100%"
-        }
+        width: { xs: "100%", sm: "auto" },
+        maxWidth: { xs: "100%", sm: "300px" },
       }}
     >
+      {!imageLoaded && (
+        <Box
+          sx={{
+            height: "160px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "#2A2A2A",
+            overflow: "hidden",
+          }}
+        >
+          <Box sx={{ transform: "scale(0.5)", transformOrigin: "center" }}>
+            <LoadingState />
+          </Box>
+        </Box>
+      )}
       <CardMedia
         component="img"
         height="160"
         image={imageSrc}
         alt={product.name || "Product"}
+        onLoad={handleImageLoad}
         sx={{
           objectFit: "cover",
           borderBottom: "2px solid #FF8C00",
           m: 1,
           borderRadius: "8px",
           width: "calc(100% - 16px)",
+          display: imageLoaded ? "block" : "none",
         }}
       />
       <CardContent sx={{ flexGrow: 1, p: { xs: 1, sm: 2 }, pb: 0 }}>
