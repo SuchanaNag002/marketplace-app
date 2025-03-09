@@ -15,7 +15,6 @@ import { updateProduct } from "../../api/ProductsApi";
 import LoadingState from "../ui/LoadingState";
 
 const OrderCard = ({ order, onDeleteOrder, setAlert }) => {
-  const backendUrl = import.meta.env.VITE_BACKEND_DOMAIN;
   const [isDeleting, setIsDeleting] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const gradientStyle = {

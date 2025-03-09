@@ -28,7 +28,6 @@ const ProductCard = ({
   user,
   setAlert,
 }) => {
-  const backendUrl = import.meta.env.VITE_BACKEND_DOMAIN;
   const [quantityToOrder, setQuantityToOrder] = useState(1);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isOrdering, setIsOrdering] = useState(false);
