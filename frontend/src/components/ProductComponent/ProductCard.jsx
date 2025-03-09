@@ -95,7 +95,6 @@ const ProductCard = ({
         maxWidth: { xs: "100%", sm: "300px" },
       }}
     >
-      {/* Show LoadingState while image is loading */}
       {!imageLoaded && (
         <Box
           sx={{
@@ -104,17 +103,14 @@ const ProductCard = ({
             alignItems: "center",
             justifyContent: "center",
             backgroundColor: "#2A2A2A",
-            overflow: "hidden", // Prevent overflow from large LoadingState
+            overflow: "hidden",
           }}
         >
-          {/* Wrap LoadingState to constrain it */}
           <Box sx={{ transform: "scale(0.5)", transformOrigin: "center" }}>
             <LoadingState />
           </Box>
         </Box>
       )}
-
-      {/* CardMedia for the image */}
       <CardMedia
         component="img"
         height="160"
@@ -130,7 +126,6 @@ const ProductCard = ({
           display: imageLoaded ? "block" : "none",
         }}
       />
-
       <CardContent sx={{ flexGrow: 1, p: { xs: 1, sm: 2 }, pb: 0 }}>
         <Typography
           variant="h6"
@@ -178,79 +173,82 @@ const ProductCard = ({
           </Typography>
         </Box>
       </CardContent>
-
       <CardActions
-        sx={{ p: { xs: 1, sm: 1.5 }, justifyContent: "space-between", flexWrap: "wrap" }}
+        sx={{
+          p: { xs: 1, sm: 1.5 },
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 1,
+        }}
       >
         {isStore && (
           <>
             {isOwnProduct ? (
               <TooltipComponent title="This product was uploaded by you. Hence you cannot purchase it.">
-                <span>
+                <Box sx={{ width: "100%", display: "flex", justifyContent: "center" }}>
                   <Counter
                     key={counterKey}
                     max={product.quantity}
                     onChange={handleQuantityChange}
                     disabled
+                    sx={{ width: "100%", maxWidth: { xs: "100%", sm: "200px" } }}
                   />
-                </span>
+                </Box>
               </TooltipComponent>
             ) : (
-              <Counter
-                key={counterKey}
-                max={product.quantity}
-                onChange={handleQuantityChange}
-                disabled={product.quantity === 0}
-              />
+              <Box sx={{ width: "100%", display: "flex", justifyContent: "center" }}>
+                <Counter
+                  key={counterKey}
+                  max={product.quantity}
+                  onChange={handleQuantityChange}
+                  disabled={product.quantity === 0}
+                  sx={{ width: "100%", maxWidth: { xs: "100%", sm: "200px" } }}
+                />
+              </Box>
             )}
             {isOwnProduct ? (
               <TooltipComponent title="This product was uploaded by you. Hence you cannot purchase it.">
-                <span>
-                  <Button
-                    size="small"
-                    fullWidth
-                    variant="contained"
-                    startIcon={<ShoppingCartIcon />}
-                    sx={{
-                      backgroundColor: "#FF8C00",
-                      "&:hover": { backgroundColor: "#CC5500" },
-                      borderRadius: "20px",
-                      "&.Mui-disabled": { backgroundColor: "#FFB266" },
-                      mt: { xs: 1, sm: 0 },
-                      width: { xs: "100%", sm: "auto" },
-                    }}
-                    disabled
-                  >
-                    Place Order
-                  </Button>
-                </span>
+                <Button
+                  size="small"
+                  variant="contained"
+                  startIcon={<ShoppingCartIcon />}
+                  sx={{
+                    backgroundColor: "#FF8C00",
+                    "&:hover": { backgroundColor: "#CC5500" },
+                    borderRadius: "20px",
+                    "&.Mui-disabled": { backgroundColor: "#FFB266" },
+                    width: "100%",
+                    maxWidth: { xs: "100%", sm: "100%" },
+                  }}
+                  disabled
+                >
+                  Place Order
+                </Button>
               </TooltipComponent>
             ) : (
               <TooltipComponent
                 title={product.quantity === 0 ? "Out of stock" : ""}
               >
-                <span>
-                  <Button
-                    size="small"
-                    fullWidth
-                    variant="contained"
-                    onClick={handlePlaceOrder}
-                    startIcon={<ShoppingCartIcon />}
-                    sx={{
-                      backgroundColor: isOrdering ? "#FFB266" : "#FF8C00",
-                      "&:hover": {
-                        backgroundColor: isOrdering ? "#FFB266" : "#CC5500",
-                      },
-                      borderRadius: "20px",
-                      "&.Mui-disabled": { backgroundColor: "#FFB266" },
-                      mt: { xs: 1, sm: 0 },
-                      width: { xs: "100%", sm: "auto" },
-                    }}
-                    disabled={product.quantity === 0 || isOrdering || !user}
-                  >
-                    {isOrdering ? "Placing Order..." : "Place Order"}
-                  </Button>
-                </span>
+                <Button
+                  size="small"
+                  variant="contained"
+                  onClick={handlePlaceOrder}
+                  startIcon={<ShoppingCartIcon />}
+                  sx={{
+                    backgroundColor: isOrdering ? "#FFB266" : "#FF8C00",
+                    "&:hover": {
+                      backgroundColor: isOrdering ? "#FFB266" : "#CC5500",
+                    },
+                    borderRadius: "20px",
+                    "&.Mui-disabled": { backgroundColor: "#FFB266" },
+                    width: "100%",
+                    maxWidth: { xs: "100%", sm: "200px" },
+                  }}
+                  disabled={product.quantity === 0 || isOrdering || !user}
+                >
+                  {isOrdering ? "Placing Order..." : "Place Order"}
+                </Button>
               </TooltipComponent>
             )}
           </>
