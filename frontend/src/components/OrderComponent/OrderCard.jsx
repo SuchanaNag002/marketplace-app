@@ -5,8 +5,6 @@ import {
   Card as MuiCard,
   CardMedia,
   CardContent,
-  CardActions,
-  Chip,
   Button,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -19,6 +17,7 @@ const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [status, setStatus] = useState(order.status || "Pending");
+
   const gradientStyle = {
     backgroundImage: "linear-gradient(45deg, #CC5500, #FFA333)",
     backgroundClip: "text",
@@ -31,18 +30,19 @@ const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
     MozTextFillColor: "transparent",
   };
 
-  const product = order.product || {};
-  const imageSrc =
-    product.image?.[0]?.thumbnails?.large?.url ||
-    "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3";
+  // Use the Airtable URL directly from the order object when isRequested is true
+  const imageSrc = isRequested
+    ? order.url
+    : order.product?.image?.[0]?.thumbnails?.large?.url ||
+      "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3";
 
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
       await deleteOrder(order.id);
-      if (product.id) {
-        const updatedQuantity = (product.quantity || 0) + order.quantity;
-        await updateProduct(product.id, { quantity: updatedQuantity });
+      if (order.product?.id) {
+        const updatedQuantity = (order.product.quantity || 0) + order.quantity;
+        await updateProduct(order.product.id, { quantity: updatedQuantity });
       }
       onDeleteOrder(order.id);
       setAlert({
@@ -96,7 +96,7 @@ const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
       {!imageLoaded && (
         <Box
           sx={{
-            height: "160px",
+            height: { xs: "120px", sm: "160px" },
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -111,9 +111,9 @@ const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
       )}
       <CardMedia
         component="img"
-        height="160"
+        height={{ xs: "120", sm: "160" }}
         image={imageSrc}
-        alt={product.name || "Product"}
+        alt={order.name || "Product"}
         onLoad={handleImageLoad}
         sx={{
           objectFit: "cover",
@@ -122,6 +122,7 @@ const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
           borderRadius: "8px",
           width: "calc(100% - 16px)",
           display: imageLoaded ? "block" : "none",
+          height: { xs: "120px", sm: "160px" },
         }}
       />
       <CardContent sx={{ flexGrow: 1, p: { xs: 1, sm: 2 }, pb: 0 }}>
@@ -140,7 +141,7 @@ const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
             pl: 0.5,
           }}
         >
-          {product.name || "Unknown Product"}
+          {order.name || "Unknown Product"}
         </Typography>
         {isRequested ? (
           <Box sx={{ mt: 1, px: 0.5 }}>
@@ -153,7 +154,25 @@ const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
                 { value: "Pending", label: "Pending" },
                 { value: "Delivered", label: "Delivered" },
               ]}
+              sx={{
+                "& .MuiInputBase-root": {
+                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                },
+                "& .MuiFormLabel-root": {
+                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                },
+              }}
             />
+            <Typography
+              variant="body2"
+              color="#FF8C00"
+              sx={{
+                mt: 1,
+                fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.9rem" },
+              }}
+            >
+              Order Date: {new Date(order.orderDate).toLocaleDateString()}
+            </Typography>
           </Box>
         ) : (
           <Box
@@ -165,16 +184,13 @@ const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
               pr: 0.5,
             }}
           >
-            <Chip
-              label={`Quantity Ordered: ${order.quantity}`}
-              size="small"
-              sx={{
-                backgroundColor: "#3D3D3D",
-                color: "#DDDDDD",
-                fontSize: { xs: "0.65rem", sm: "0.7rem", md: "0.75rem" },
-                height: { xs: "20px", sm: "22px", md: "24px" },
-              }}
-            />
+            <Typography
+              variant="body2"
+              color="#FF8C00"
+              sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.9rem" } }}
+            >
+              Quantity Ordered: {order.quantity}
+            </Typography>
             <Typography
               variant="body2"
               color="#FF8C00"

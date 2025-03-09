@@ -15,10 +15,10 @@ const addOrderByProductIdAndUserId = async (
   additionalData = {}
 ) => {
   const orderData = {
-    productId: [productId], 
-    buyerId: [userId], 
+    productId: [productId],
+    buyerId: [userId],
     status: "Pending",
-    ...additionalData, 
+    ...additionalData,
   };
   const records = await base("Orders").create([{ fields: orderData }]);
   return { id: records[0].id, ...records[0].fields };
@@ -26,7 +26,7 @@ const addOrderByProductIdAndUserId = async (
 
 const updateOrderByOrderId = async (orderId, orderData) => {
   if (orderData.userId) {
-    orderData.buyerId = [orderData.userId]; 
+    orderData.buyerId = [orderData.userId];
   }
   const records = await base("Orders").update([
     { id: orderId, fields: orderData },
@@ -72,6 +72,7 @@ const fetchRequestedOrders = async (userId) => {
         url: product?.fields?.image?.[0]?.url || "No Image",
         status: record.fields.status,
         orderDate: record.fields.orderDate,
+        orderId: record.fields.id,
       };
     });
 
