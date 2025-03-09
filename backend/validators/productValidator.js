@@ -1,7 +1,4 @@
 import Joi from 'joi';
-import path from 'path';
-
-const validImageExtensions = ['.jpeg', '.jpg', '.png'];
 
 const productValidator = Joi.object({
   name: Joi.string().required().trim().min(1).messages({
@@ -27,17 +24,10 @@ const productValidator = Joi.object({
   image: Joi.any().required().messages({
     'any.required': 'Image is required'
   }),
-  imageUrl: Joi.string().uri().optional().custom((value, helpers) => {
-    if (value) {
-      const ext = path.extname(value).toLowerCase();
-      if (!validImageExtensions.includes(ext)) return helpers.error('any.invalid');
-    }
-    return value;
-  }).messages({
-    'string.uri': 'Image URL must be a valid image path',
-    'any.invalid': 'Image URL must have a valid .jpeg, .jpg, or .png extension'
-  }),
-  userId: Joi.string().optional()
+  sellerId: Joi.string().required().messages({
+    'string.empty': 'Seller ID is required',
+    'any.required': 'Seller ID is required'
+  })
 });
 
 const updateProductValidator = Joi.object({
@@ -58,17 +48,7 @@ const updateProductValidator = Joi.object({
     'number.min': 'Quantity must be greater than 0'
   }),
   image: Joi.any().optional(),
-  imageUrl: Joi.string().uri().optional().custom((value, helpers) => {
-    if (value) {
-      const ext = path.extname(value).toLowerCase();
-      if (!validImageExtensions.includes(ext)) return helpers.error('any.invalid');
-    }
-    return value;
-  }).messages({
-    'string.uri': 'Image URL must be a valid image path',
-    'any.invalid': 'Image URL must have a valid .jpeg, .jpg, or .png extension'
-  }),
-  userId: Joi.string().optional()
+  sellerId: Joi.string().optional()
 });
 
 export { productValidator, updateProductValidator };
