@@ -17,6 +17,7 @@ const addOrderByProductIdAndUserId = async (
   const orderData = {
     productId: [productId], 
     buyerId: [userId], 
+    status: "Pending",
     ...additionalData, 
   };
   const records = await base("Orders").create([{ fields: orderData }]);
