@@ -1,12 +1,23 @@
 import { FormControl, MenuItem, Select } from "@mui/material";
 
 const Dropdown = ({ label, name, value, onChange, options }) => {
+  const gradientStyle = {
+    backgroundImage: "linear-gradient(45deg, #CC5500, #FFA333)",
+    backgroundClip: "text",
+    textFillColor: "transparent",
+    color: "transparent",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    MozBackgroundClip: "text",
+    MozTextFillColor: "transparent",
+  };
+
   return (
     <div>
       <label
         style={{
           fontSize: "0.9rem",
-          color: "#333",
+          color: "white",
           display: "block",
           marginBottom: "0.3rem",
           fontWeight: 500,
@@ -35,10 +46,27 @@ const Dropdown = ({ label, name, value, onChange, options }) => {
             "&.Mui-focused": {
               outline: "none",
             },
+            "& .MuiSelect-select": {
+              ...gradientStyle,
+            },
           }}
         >
           {options.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
+            <MenuItem 
+              key={option.value} 
+              value={option.value}
+              sx={{
+                ...gradientStyle,
+                '&.Mui-selected': {
+                  ...gradientStyle,
+                  backgroundColor: 'rgba(255, 140, 0, 0.1)',
+                },
+                '&:hover': {
+                  ...gradientStyle,
+                  backgroundColor: 'rgba(255, 140, 0, 0.1)',
+                },
+              }}
+            >
               {option.label}
             </MenuItem>
           ))}

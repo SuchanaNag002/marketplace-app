@@ -56,7 +56,6 @@ const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
   const handleStatusChange = async (e) => {
     const newStatus = e.target.value;
     try {
-      console.log(order.id)
       await updateOrder(order.id, { status: newStatus });
       setStatus(newStatus);
       setAlert({ severity: "success", message: "Order status updated successfully" });
@@ -147,19 +146,6 @@ const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
                 { value: "Pending", label: "Pending" },
                 { value: "Delivered", label: "Delivered" },
               ]}
-              sx={{
-                "& .MuiInputBase-root": {
-                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                  color: "white",
-                },
-                "& .MuiFormLabel-root": {
-                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                  color: "white",
-                },
-                "& .MuiSelect-select": {
-                  color: "white",
-                },
-              }}
             />
             <Typography
               variant="body2"
