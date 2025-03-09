@@ -125,7 +125,13 @@ const Dashboard = ({ onLogout }) => {
       const orders = await getOrders(user.id);
       const enrichedOrders = orders.map((order) => ({
         ...order,
-        product: products.find((p) => p.id === order.productId),
+        product: products.find(
+          (p) =>
+            p.id ===
+            (Array.isArray(order.productId)
+              ? order.productId[0]
+              : order.productId)
+        ),
       }));
       setFilteredProducts(enrichedOrders);
     } catch (error) {
