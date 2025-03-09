@@ -33,10 +33,30 @@ const ProductCard = ({
   const [isOrdering, setIsOrdering] = useState(false);
   const [counterKey, setCounterKey] = useState(0);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const isOwnProduct =
     user && product.sellerId && product.sellerId.includes(user.id);
 
-  const imageSrc = product.image?.[0]?.thumbnails?.large?.url || "";
+  // Improved image source extraction with fallbacks
+  const getImageSrc = () => {
+    // Check for multiple possible image URL structures
+    if (product.image && product.image.length > 0) {
+      // Direct URL (for Cloudinary images)
+      if (product.image[0].url) {
+        return product.image[0].url;
+      }
+      // Airtable thumbnail structure
+      if (product.image[0].thumbnails) {
+        return product.image[0].thumbnails.large?.url || 
+               product.image[0].thumbnails.full?.url || 
+               product.image[0].thumbnails.small?.url;
+      }
+    }
+    // Return a placeholder if no valid image found
+    return "https://via.placeholder.com/300x160?text=No+Image";
+  };
+
+  const imageSrc = getImageSrc();
 
   const handleQuantityChange = (quantity) => {
     setQuantityToOrder(quantity);
@@ -72,6 +92,17 @@ const ProductCard = ({
     setImageLoaded(true);
   };
 
+  const handleImageError = () => {
+    setImageError(true);
+    setImageLoaded(true); // Mark as loaded to remove spinner
+  };
+
+  // Reset loading state if product changes
+  useEffect(() => {
+    setImageLoaded(false);
+    setImageError(false);
+  }, [product.id]);
+
   return (
     <MuiCard
       sx={{
@@ -91,37 +122,59 @@ const ProductCard = ({
         maxWidth: { xs: "100%", sm: "300px" },
       }}
     >
-      {!imageLoaded && (
-        <Box
-          sx={{
-            height: "160px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: "#2A2A2A",
-            overflow: "hidden",
-          }}
-        >
-          <Box sx={{ transform: "scale(0.5)", transformOrigin: "center" }}>
-            <LoadingState />
-          </Box>
-        </Box>
-      )}
-      <CardMedia
-        component="img"
-        height="160"
-        image={imageSrc}
-        alt={product.name}
-        onLoad={handleImageLoad}
+      <Box
         sx={{
-          objectFit: "cover",
-          borderBottom: "2px solid #FF8C00",
+          height: "160px",
+          position: "relative",
           m: 1,
           borderRadius: "8px",
-          width: "calc(100% - 16px)",
-          display: imageLoaded ? "block" : "none",
+          overflow: "hidden",
+          backgroundColor: "#222222", // Darker background for image container
         }}
-      />
+      >
+        {!imageLoaded && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 1,
+            }}
+          >
+            <Box 
+              sx={{ 
+                transform: { xs: "scale(0.4)", sm: "scale(0.5)" }, 
+                transformOrigin: "center",
+                opacity: 0.8
+              }}
+            >
+              <LoadingState />
+            </Box>
+          </Box>
+        )}
+        <CardMedia
+          component="img"
+          height="160"
+          image={imageSrc}
+          alt={product.name || "Product image"}
+          onLoad={handleImageLoad}
+          onError={handleImageError}
+          sx={{
+            objectFit: "cover",
+            height: "100%",
+            width: "100%",
+            borderBottom: imageLoaded ? "2px solid #FF8C00" : "none",
+            borderRadius: "6px",
+            display: imageLoaded ? "block" : "none",
+            backgroundColor: imageError ? "#3D3D3D" : "transparent",
+          }}
+        />
+      </Box>
       <CardContent sx={{ flexGrow: 1, p: { xs: 1, sm: 2 }, pb: 0 }}>
         <Typography
           variant="h6"

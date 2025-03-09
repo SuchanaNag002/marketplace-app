@@ -18,7 +18,7 @@ import Navbar from "../../components/ui/Navbar";
 import Sidebar from "../../components/ui/Sidebar";
 import Dialog from "../../components/ui/Dialog";
 import { UserContext } from "../../context/userContext";
-import { ProductContext } from "../../context/productContext";
+import { ProductContext } from "../../context/ProductContext";
 import { fetchRequestedOrders, getOrders } from "../../api/OrdersApi";
 import ProductCard from "../../components/ProductComponent/ProductCard";
 import OrderCard from "../../components/OrderComponent/OrderCard";

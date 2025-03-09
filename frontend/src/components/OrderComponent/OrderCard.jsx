@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -13,11 +13,31 @@ import { deleteOrder, updateOrder } from "../../api/OrdersApi";
 import { updateProduct } from "../../api/ProductsApi";
 import LoadingState from "../ui/LoadingState";
 import Dropdown from "../ui/Dropdown";
+import { ProductContext } from "../../context/ProductContext";
 
 const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [status, setStatus] = useState(order.status || "Pending");
+  const { products, fetchProducts, loading } = useContext(ProductContext);
+
+  // Fetch products if not already loaded
+  useEffect(() => {
+    if (!products.length && !loading) {
+      fetchProducts().catch((error) =>
+        console.error("Failed to fetch products:", error)
+      );
+    }
+  }, [products, loading, fetchProducts]);
+
+  // Handle order.productId being an array
+  const productId = Array.isArray(order.productId) ? order.productId[0] : order.productId;
+  const product = products.find((p) => p.id === productId);
+  console.log("Order productId (raw):", order.productId);
+  console.log("Extracted productId:", productId);
+  console.log("Products array:", products);
+  console.log("Found product:", product);
+  const productName = product ? product.name : "Unknown Product";
 
   const gradientStyle = {
     backgroundImage: "linear-gradient(45deg, #CC5500, #FFA333)",
@@ -33,16 +53,16 @@ const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
 
   const imageSrc = isRequested
     ? order.url
-    : order.product?.image?.[0]?.thumbnails?.large?.url ||
+    : product?.image?.[0]?.thumbnails?.large?.url ||
       "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3";
 
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
       await deleteOrder(order.id);
-      if (order.product?.id) {
-        const updatedQuantity = (order.product.quantity || 0) + order.quantity;
-        await updateProduct(order.product.id, { quantity: updatedQuantity });
+      if (product?.id) {
+        const updatedQuantity = (product.quantity || 0) + order.quantity;
+        await updateProduct(product.id, { quantity: updatedQuantity });
       }
       onDeleteOrder(order.id);
       setAlert({ severity: "success", message: "Order cancelled successfully" });
@@ -105,7 +125,7 @@ const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
         component="img"
         height={{ xs: "120", sm: "160" }}
         image={imageSrc}
-        alt={order.name || "Product"}
+        alt={productName}
         onLoad={handleImageLoad}
         sx={{
           objectFit: "cover",
@@ -133,7 +153,7 @@ const OrderCard = ({ order, onDeleteOrder, setAlert, isRequested }) => {
             pl: 0.5,
           }}
         >
-          {order.name || "Unknown Product"}
+          {loading ? "Loading..." : productName}
         </Typography>
         {isRequested ? (
           <Box sx={{ mt: 1, px: 0.5 }}>
