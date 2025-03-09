@@ -33,18 +33,16 @@ const ProductCard = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isOrdering, setIsOrdering] = useState(false);
   const [counterKey, setCounterKey] = useState(0);
-  const [imageLoaded, setImageLoaded] = useState(false); 
+  const [imageLoaded, setImageLoaded] = useState(false);
   const isOwnProduct =
     user && product.sellerId && product.sellerId.includes(user.id);
 
   const imageSrc = product.image?.[0]?.thumbnails?.large?.url || "";
 
-  // Handle quantity change for the counter
   const handleQuantityChange = (quantity) => {
     setQuantityToOrder(quantity);
   };
 
-  // Handle placing an order
   const handlePlaceOrder = async () => {
     if (quantityToOrder > 0 && user) {
       setIsOrdering(true);
@@ -75,7 +73,6 @@ const ProductCard = ({
     }
   };
 
-  // Handle image load completion
   const handleImageLoad = () => {
     setImageLoaded(true);
   };
@@ -83,7 +80,7 @@ const ProductCard = ({
   return (
     <MuiCard
       sx={{
-        maxHeight: { xs: "32rem", sm: "36rem" }, 
+        maxHeight: { xs: "32rem", sm: "36rem" },
         display: "flex",
         flexDirection: "column",
         backgroundColor: "#2A2A2A",
@@ -95,7 +92,7 @@ const ProductCard = ({
           transform: "translateY(-5px)",
           boxShadow: "0 0 25px rgba(255, 140, 0, 0.6)",
         },
-        width: { xs: "100%", sm: "auto" }, 
+        width: { xs: "100%", sm: "auto" },
         maxWidth: { xs: "100%", sm: "300px" },
       }}
     >
@@ -108,9 +105,13 @@ const ProductCard = ({
             alignItems: "center",
             justifyContent: "center",
             backgroundColor: "#2A2A2A",
+            overflow: "hidden", // Prevent overflow from large LoadingState
           }}
         >
-          <LoadingState />
+          {/* Wrap LoadingState to constrain it */}
+          <Box sx={{ transform: "scale(0.5)", transformOrigin: "center" }}>
+            <LoadingState />
+          </Box>
         </Box>
       )}
 
@@ -120,14 +121,14 @@ const ProductCard = ({
         height="160"
         image={imageSrc}
         alt={product.name}
-        onLoad={handleImageLoad} 
+        onLoad={handleImageLoad}
         sx={{
           objectFit: "cover",
           borderBottom: "2px solid #FF8C00",
           m: 1,
           borderRadius: "8px",
           width: "calc(100% - 16px)",
-          display: imageLoaded ? "block" : "none", 
+          display: imageLoaded ? "block" : "none",
         }}
       />
 
@@ -138,7 +139,7 @@ const ProductCard = ({
           sx={{
             color: "#FF8C00",
             mb: 0.5,
-            fontSize: { xs: "1rem", sm: "1.25rem" }, 
+            fontSize: { xs: "1rem", sm: "1.25rem" },
           }}
         >
           {product.name}
@@ -148,7 +149,7 @@ const ProductCard = ({
           color="#CCCCCC"
           sx={{
             mb: 1,
-            fontSize: { xs: "0.875rem", sm: "1rem" }, 
+            fontSize: { xs: "0.875rem", sm: "1rem" },
           }}
         >
           {product.description}
@@ -171,7 +172,7 @@ const ProductCard = ({
             sx={{
               color: "#FF8C00",
               fontWeight: "bold",
-              fontSize: { xs: "1rem", sm: "1.25rem" }, 
+              fontSize: { xs: "1rem", sm: "1.25rem" },
             }}
           >
             ${product.price?.toFixed(2) || "0.00"}
@@ -216,8 +217,8 @@ const ProductCard = ({
                       "&:hover": { backgroundColor: "#CC5500" },
                       borderRadius: "20px",
                       "&.Mui-disabled": { backgroundColor: "#FFB266" },
-                      mt: { xs: 1, sm: 0 }, 
-                      width: { xs: "100%", sm: "auto" }, 
+                      mt: { xs: 1, sm: 0 },
+                      width: { xs: "100%", sm: "auto" },
                     }}
                     disabled
                   >
@@ -244,7 +245,7 @@ const ProductCard = ({
                       borderRadius: "20px",
                       "&.Mui-disabled": { backgroundColor: "#FFB266" },
                       mt: { xs: 1, sm: 0 },
-                      width: { xs: "100%", sm: "auto" }, 
+                      width: { xs: "100%", sm: "auto" },
                     }}
                     disabled={product.quantity === 0 || isOrdering || !user}
                   >
@@ -261,7 +262,7 @@ const ProductCard = ({
               display: "flex",
               width: "100%",
               justifyContent: "space-between",
-              mt: { xs: 1, sm: 0 }, 
+              mt: { xs: 1, sm: 0 },
             }}
           >
             <Button
