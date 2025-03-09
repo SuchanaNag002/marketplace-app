@@ -17,7 +17,7 @@ import ListAltIcon from "@mui/icons-material/ListAlt";
 import Navbar from "../../components/ui/Navbar";
 import Sidebar from "../../components/ui/Sidebar";
 import Dialog from "../../components/ui/Dialog";
-import { UserContext } from "../../context/userContext";
+import { UserContext } from "../../context/UserContext";
 import { ProductContext } from "../../context/ProductContext";
 import { fetchRequestedOrders, getOrders } from "../../api/OrdersApi";
 import ProductCard from "../../components/ProductComponent/ProductCard";
