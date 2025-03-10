@@ -1,7 +1,7 @@
 import React from "react";
 import { AppBar, Toolbar, Typography, IconButton } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import SearchBar from "./SearchBar";
+import SearchBar from "./Searchbar"
 
 const drawerWidth = "13rem";
 
