@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import { UserContext } from "./context/userContext";
+import { UserContext } from "./context/UserContext";
 
 const App = () => {
   const { isAuthenticated, logout } = useContext(UserContext);
